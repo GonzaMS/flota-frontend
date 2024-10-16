@@ -1,5 +1,6 @@
 import useCars from "@/hooks/useCars";
 import useKilometers from "@/hooks/useKilometers";
+import useMaintenances from "@/hooks/useMaintenances";
 import {
   ArcElement,
   BarElement,
@@ -24,9 +25,11 @@ ChartJS.register(
 const Dashboard = () => {
   const [carsData, setCarsData] = useState(null);
   const [kilometerData, setKilometerData] = useState(null);
+  const [maintenancesData, setMaintenancesData] = useState(null);
 
   const { getCars } = useCars();
   const { getKilometers } = useKilometers();
+  const { getMaintenances } = useMaintenances();
 
   const fetchCars = async () => {
     try {
@@ -54,15 +57,39 @@ const Dashboard = () => {
     fetchKilometers();
   }, []);
 
-  if (!carsData || !kilometerData) {
-    return <p>Cargando datos...</p>;
+  const fetchMaintenances = async () => {
+    try {
+      const res = await getMaintenances();
+      setMaintenancesData(res.items);
+    } catch (error) {
+      console.error("Error fetching maintenance data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchMaintenances();
+  }, []);
+
+  if (!carsData || !kilometerData || !maintenancesData) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="sk-chase">
+          <div className="sk-chase-dot"></div>
+          <div className="sk-chase-dot"></div>
+          <div className="sk-chase-dot"></div>
+          <div className="sk-chase-dot"></div>
+          <div className="sk-chase-dot"></div>
+          <div className="sk-chase-dot"></div>
+        </div>
+      </div>
+    );
   }
 
   const carStatusData = {
-    labels: ["ACTIVOS", "INACTIVOS"],
+    labels: ["ACTIVE", "INACTIVE"],
     datasets: [
       {
-        label: "Estado de Vehículos",
+        label: "Car States",
         data: [
           carsData.filter((car) => car.state === "ACTIVE").length,
           carsData.filter((car) => car.state === "INACTIVE").length,
@@ -75,10 +102,10 @@ const Dashboard = () => {
   };
 
   const KilometersDataStatus = {
-    labels: kilometerData.map((km) => `Vehículo ${km.carId}`),
+    labels: kilometerData.map((km) => `Car ${km.carId}`),
     datasets: [
       {
-        label: "Kilometraje (km)",
+        label: "Kilometers (km)",
         data: kilometerData.map((km) => km.actualKm),
         backgroundColor: "rgba(54, 162, 235, 0.6)",
         borderColor: "rgba(54, 162, 235, 1)",
@@ -87,18 +114,34 @@ const Dashboard = () => {
     ],
   };
 
+  const maintenanceDataStatus = {
+    labels: maintenancesData.map((item) => `Car ${item.carId}`),
+    datasets: [
+      {
+        label: "Maintenance Cost (in $)",
+        data: maintenancesData.map((item) => item.cost),
+        backgroundColor: "rgba(75, 192, 192, 0.6)",
+        borderColor: "rgba(75, 192, 192, 1)",
+        borderWidth: 1,
+      },
+    ],
+  };
+
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
-      {/* Gráfico de Estado de Vehículos */}
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 mt-12">
       <div className="col-span-1 p-4 bg-white shadow-md rounded-lg">
-        <h3 className="text-lg font-bold">Estado de Vehículos</h3>
+        <h3 className="text-lg font-bold">Car States</h3>
         <Pie data={carStatusData} />
       </div>
 
-      {/* Gráfico de Kilometraje Recorrido */}
       <div className="col-span-1 p-4 bg-white shadow-md rounded-lg">
-        <h3 className="text-lg font-bold">Kilometraje Recorrido</h3>
+        <h3 className="text-lg font-bold">Kilometers traveled</h3>
         <Bar data={KilometersDataStatus} />
+      </div>
+
+      <div className="col-span-1 p-4 bg-white shadow-md rounded-lg">
+        <h3 className="text-lg font-bold">Maintenance History</h3>
+        <Bar data={maintenanceDataStatus} />
       </div>
     </div>
   );

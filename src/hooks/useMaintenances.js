@@ -2,8 +2,8 @@ import { getToken } from "@/utils/getToken";
 import { useState } from "react";
 import api from "../utils/api";
 
-const useCars = () => {
-  const CARS_URL = "/api/v1/cars";
+const useMaintenances = () => {
+  const MAINTENANCES_URL = "/api/v1/maintenances";
 
   const [cars, setCars] = useState([]);
   const [pagination, setPagination] = useState({
@@ -38,10 +38,10 @@ const useCars = () => {
     }
   };
 
-  const getCars = async (page = 0, pageSize = 10) => {
+  const getMaintenances = async (page = 0, pageSize = 10) => {
     const token = getToken();
     return handleRequest(() =>
-      api.get(`${CARS_URL}?pageNumber=${page}&pageSize=${pageSize}`, {
+      api.get(`${MAINTENANCES_URL}?pageNumber=${page}&pageSize=${pageSize}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -52,7 +52,7 @@ const useCars = () => {
   const getById = async (id) => {
     const token = getToken();
     return handleRequest(() =>
-      api.get(`${CARS_URL}/${id}`, {
+      api.get(`${MAINTENANCES_URL}/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -60,10 +60,10 @@ const useCars = () => {
     );
   };
 
-  const createCar = async (car) => {
+  const createMaintenance = async (maintenance) => {
     const token = getToken();
     return handleRequest(() =>
-      api.post(CARS_URL, car, {
+      api.post(MAINTENANCES_URL, maintenance, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -71,10 +71,10 @@ const useCars = () => {
     );
   };
 
-  const updateCar = async (car) => {
+  const updateMaintenance = async (maintenance) => {
     const token = getToken();
     return handleRequest(() =>
-      api.put(`${CARS_URL}/${car.id}`, car, {
+      api.put(`${MAINTENANCES_URL}/${maintenance.id}`, maintenance, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -82,44 +82,38 @@ const useCars = () => {
     );
   };
 
-  const deactivateCar = async (id) => {
+  const deleteMaintenance = async (id) => {
     const token = getToken();
     return handleRequest(() =>
-      api.put(
-        `${CARS_URL}/deactivate/${id}`,
-        {},
+      api.delete(`${MAINTENANCES_URL}/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+    );
+  };
+
+  // Filter
+  // Car Id and Date Range
+  const getByCarIdAndDate = async (
+    carId,
+    startDate,
+    endDate,
+    page = 0,
+    pageSize = 10
+  ) => {
+    const token = getToken();
+    return handleRequest(() =>
+      api.get(
+        `${MAINTENANCES_URL}/filter?carId=${carId}&pageNumber=${page}&pageSize=${pageSize}`,
+        startDate,
+        endDate,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       )
-    );
-  };
-
-  const activateCar = async (id) => {
-    const token = getToken();
-    return handleRequest(() =>
-      api.put(
-        `${CARS_URL}/activate/${id}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-    );
-  };
-
-  const deleteCar = async (id) => {
-    const token = getToken();
-    return handleRequest(() =>
-      api.delete(`${CARS_URL}/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
     );
   };
 
@@ -128,14 +122,13 @@ const useCars = () => {
     pagination,
     error,
     isLoading,
-    getCars,
+    getMaintenances,
     getById,
-    createCar,
-    updateCar,
-    deactivateCar,
-    activateCar,
-    deleteCar,
+    createMaintenance,
+    updateMaintenance,
+    deleteMaintenance,
+    getByCarIdAndDate,
   };
 };
 
-export default useCars;
+export default useMaintenances;

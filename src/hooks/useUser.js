@@ -2,7 +2,7 @@ import { useState } from "react";
 import api from "../utils/api";
 
 const useUser = () => {
-  const USER_URL = "/api/v1/auth/login";
+  const USER_URL = "/api/v1/auth/";
 
   const [users, setUsers] = useState([]);
   const [error, setError] = useState(null);
@@ -24,10 +24,18 @@ const useUser = () => {
   };
 
   const getLogin = async (params) => {
-    return handleRequest(() => api.post(`${USER_URL}`, params));
+    return handleRequest(() => api.post(`${USER_URL}/login`, params));
   };
 
-  return { getLogin, error, isLoading, users };
+  const registerUser = async (params) => {
+    return handleRequest(() => api.post(`${USER_URL}/register`, params));
+  };
+
+  const activateAccount = async (token) => {
+    return handleRequest(() => api.get(`${USER_URL}/activate?token=${token}`));
+  };
+
+  return { error, isLoading, users, registerUser, getLogin, activateAccount };
 };
 
 export default useUser;

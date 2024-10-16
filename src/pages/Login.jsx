@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import useUser from "../hooks/useUser";
-import { useAuth } from "../context/AuthContext";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import useUser from "../hooks/useUser";
 
 const Login = () => {
   const { getLogin, isLoading } = useUser();
@@ -38,21 +38,20 @@ const Login = () => {
   };
 
   return (
-    <>
-      <div>
-        <h1 className="text-indigo-600 font-black text-3xl">
-          Login to manage your car fleet
-        </h1>
-      </div>
-
+    <div className="flex items-center justify-center">
       <div className="mx-auto max-w-sm w-full">
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-4 pro:mt-10 sm:mt-0">
+        <div>
+          <h1 className="text-indigo-600 font-black text-3xl text-center">
+            Login to manage your car fleet
+          </h1>
+        </div>
+        <form onSubmit={handleSubmit} className="mt-6">
+          <div className="space-y-4">
             <div className="space-y-2 text-start">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
-                placeholder="m@example.com"
+                placeholder="jondoe@example.com"
                 required
                 type="email"
                 value={email}
@@ -76,7 +75,6 @@ const Login = () => {
             {/* Show errors */}
             {localError && (
               <div className="text-red-500">
-                {/* Show validation errors */}
                 {localError.validationErrors &&
                 localError.validationErrors.length > 0 ? (
                   <ul>
@@ -92,7 +90,7 @@ const Login = () => {
           </div>
         </form>
       </div>
-    </>
+    </div>
   );
 };
 

@@ -49,7 +49,74 @@ const useKilometers = () => {
     );
   };
 
-  return { cars, pagination, error, isLoading, getKilometers };
+  const createKilometer = async (kilometers) => {
+    const token = getToken();
+    return handleRequest(() =>
+      api.post(KILOMETERS_URL, kilometers, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+    );
+  };
+
+  const updateKilometer = async (kilometers) => {
+    const token = getToken();
+    return handleRequest(() =>
+      api.put(`${KILOMETERS_URL}/${kilometers.id}`, kilometers, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+    );
+  };
+
+  const deleteKilometer = async (id) => {
+    const token = getToken();
+    return handleRequest(() =>
+      api.delete(`${KILOMETERS_URL}/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+    );
+  };
+
+  // Filter
+  // Car Id and Date Range
+  const getByCarIdAndDate = async (
+    carId,
+    startDate,
+    endDate,
+    page = 0,
+    pageSize = 10
+  ) => {
+    const token = getToken();
+    return handleRequest(() =>
+      api.get(
+        `${KILOMETERS_URL}/filter?carId=${carId}&pageNumber=${page}&pageSize=${pageSize}`,
+        startDate,
+        endDate,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+    );
+  };
+
+  return {
+    cars,
+    pagination,
+    error,
+    isLoading,
+    getKilometers,
+    createKilometer,
+    updateKilometer,
+    deleteKilometer,
+    getByCarIdAndDate,
+  };
 };
 
 export default useKilometers;
