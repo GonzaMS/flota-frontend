@@ -10,7 +10,7 @@ const DashboardHeader = ({ isOpen }) => {
       } z-30`}
     >
       <div className="flex justify-between items-center">
-        <h2 className="text-lg md:text-xl lg:text-2xl font-semibold text-white">
+        <h2 className="text-lg md:text-xl lg:text-2xl font-semibold text-white ml-3">
           Dashboard
         </h2>
 

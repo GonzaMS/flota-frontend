@@ -1,3 +1,4 @@
+import { Error } from "@/components/Error";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -74,7 +75,7 @@ const Login = () => {
 
             {/* Show errors */}
             {localError && (
-              <div className="text-red-500">
+              <Error>
                 {localError.validationErrors &&
                 localError.validationErrors.length > 0 ? (
                   <ul>
@@ -83,9 +84,9 @@ const Login = () => {
                     ))}
                   </ul>
                 ) : (
-                  <p>Error: {localError.message || "Unknown error"}</p>
+                  <p>{localError.message || "Unknown error"}</p>
                 )}
-              </div>
+              </Error>
             )}
           </div>
         </form>

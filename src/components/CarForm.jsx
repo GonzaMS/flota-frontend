@@ -1,6 +1,9 @@
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input"; // Suponiendo que tienes un componente Input personalizado
+import { Label } from "@/components/ui/label"; // Suponiendo que tienes un componente Label personalizado
 import useCars from "@/hooks/useCars";
 import { useEffect, useState } from "react";
+import { AiOutlineArrowLeft } from "react-icons/ai"; // Importamos el ícono de flecha
 import { useNavigate, useParams } from "react-router-dom";
 
 const CarForm = () => {
@@ -41,91 +44,128 @@ const CarForm = () => {
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">
-        {carId ? "Edit Car" : "Add New Car"}
-      </h2>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label htmlFor="brand" className="block font-semibold">
-            Brand
-          </label>
-          <input
-            type="text"
-            id="brand"
-            value={carData.brand}
-            onChange={(e) => setCarData({ ...carData, brand: e.target.value })}
-            className="w-full p-2 border rounded"
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <label htmlFor="model" className="block font-semibold">
-            Model
-          </label>
-          <input
-            type="text"
-            id="model"
-            value={carData.model}
-            onChange={(e) => setCarData({ ...carData, model: e.target.value })}
-            className="w-full p-2 border rounded"
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <label htmlFor="fabricationYear" className="block font-semibold">
-            Fabrication Year
-          </label>
-          <input
-            type="date"
-            id="fabricationYear"
-            value={carData.fabricationYear}
-            onChange={(e) =>
-              setCarData({ ...carData, fabricationYear: e.target.value })
-            }
-            className="w-full p-2 border rounded"
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <label htmlFor="license" className="block font-semibold">
-            License Plate
-          </label>
-          <input
-            type="text"
-            id="license"
-            value={carData.licensePlate}
-            onChange={(e) =>
-              setCarData({ ...carData, licensePlate: e.target.value })
-            }
-            className="w-full p-2 border rounded"
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <label htmlFor="state" className="block font-semibold">
-            State
-          </label>
-          <select
-            id="state"
-            value={carData.state}
-            onChange={(e) => setCarData({ ...carData, state: e.target.value })}
-            className="w-full p-2 border rounded"
-            required
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="p-8 bg-white shadow-lg rounded-lg max-w-lg w-full">
+        <div className="mb-6 flex items-center">
+          <button
+            onClick={() => navigate("/dashboard/cars")}
+            className="flex items-center text-gray-600 hover:text-indigo-600"
           >
-            <option value="ACTIVE">Active</option>
-            <option value="INACTIVE">Inactive</option>
-          </select>
+            <AiOutlineArrowLeft className="mr-2" size={24} />
+            <span className="font-semibold">Back to cars</span>
+          </button>
         </div>
 
-        <Button className="bg-indigo-500 text-white" type="submit">
-          {carId ? "Update Car" : "Add Car"}
-        </Button>
-      </form>
+        <h2 className="text-3xl font-bold text-center text-indigo-600 mb-8">
+          {carId ? "Edit Car" : "Add New Car"}
+        </h2>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <Label
+              htmlFor="brand"
+              className="block font-semibold text-gray-700"
+            >
+              Brand
+            </Label>
+            <Input
+              id="brand"
+              value={carData.brand}
+              onChange={(e) =>
+                setCarData({ ...carData, brand: e.target.value })
+              }
+              placeholder="Enter car brand"
+              required
+              className="w-full mt-1 p-2 border rounded focus:border-indigo-500 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <Label
+              htmlFor="model"
+              className="block font-semibold text-gray-700"
+            >
+              Model
+            </Label>
+            <Input
+              id="model"
+              value={carData.model}
+              onChange={(e) =>
+                setCarData({ ...carData, model: e.target.value })
+              }
+              placeholder="Enter car model"
+              required
+              className="w-full mt-1 p-2 border rounded focus:border-indigo-500 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <Label
+              htmlFor="fabricationYear"
+              className="block font-semibold text-gray-700"
+            >
+              Fabrication Year
+            </Label>
+            <Input
+              type="date"
+              id="fabricationYear"
+              value={carData.fabricationYear}
+              onChange={(e) =>
+                setCarData({ ...carData, fabricationYear: e.target.value })
+              }
+              required
+              className="w-full mt-1 p-2 border rounded focus:border-indigo-500 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <Label
+              htmlFor="license"
+              className="block font-semibold text-gray-700"
+            >
+              License Plate
+            </Label>
+            <Input
+              id="license"
+              value={carData.licensePlate}
+              onChange={(e) =>
+                setCarData({ ...carData, licensePlate: e.target.value })
+              }
+              placeholder="Enter license plate"
+              required
+              className="w-full mt-1 p-2 border rounded focus:border-indigo-500 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <Label
+              htmlFor="state"
+              className="block font-semibold text-gray-700"
+            >
+              State
+            </Label>
+            <select
+              id="state"
+              value={carData.state}
+              onChange={(e) =>
+                setCarData({ ...carData, state: e.target.value })
+              }
+              required
+              className="w-full mt-1 p-2 border rounded focus:border-indigo-500 focus:outline-none"
+            >
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
+          </div>
+
+          <Button
+            type="submit"
+            className="w-full py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors duration-300"
+          >
+            {carId ? "Update Car" : "Add Car"}
+          </Button>
+        </form>
+      </div>
     </div>
   );
 };

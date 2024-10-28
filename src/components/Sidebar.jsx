@@ -1,13 +1,12 @@
-import { Button } from "@/components/ui/button";
 import {
   FaBars,
   FaCar,
   FaClipboardList,
-  FaFileAlt,
   FaTimes,
   FaUser,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import GenerateReportButton from "./GenerateReportButton";
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   return (
@@ -55,12 +54,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         </ul>
       </nav>
 
-      {isOpen && (
-        <Button className="bg-indigo-500 text-white mt-auto flex items-center space-x-6">
-          <FaFileAlt size={20} />
-          <span>Generate Report</span>
-        </Button>
-      )}
+      {isOpen && <GenerateReportButton />}
     </div>
   );
 };

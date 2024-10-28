@@ -72,7 +72,7 @@ const Dashboard = () => {
 
   if (!carsData || !kilometerData || !maintenancesData) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center items-center min-h-screen">
         <div className="sk-chase">
           <div className="sk-chase-dot"></div>
           <div className="sk-chase-dot"></div>
@@ -128,20 +128,22 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 mt-12">
-      <div className="col-span-1 p-4 bg-white shadow-md rounded-lg">
-        <h3 className="text-lg font-bold">Car States</h3>
-        <Pie data={carStatusData} />
-      </div>
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-start p-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 w-full max-w-7xl mt-12">
+        <div className="col-span-1 p-6 bg-white shadow-md rounded-lg">
+          <h3 className="text-lg font-bold mb-4">Car States</h3>
+          <Pie data={carStatusData} />
+        </div>
 
-      <div className="col-span-1 p-4 bg-white shadow-md rounded-lg">
-        <h3 className="text-lg font-bold">Kilometers traveled</h3>
-        <Bar data={KilometersDataStatus} />
-      </div>
+        <div className="col-span-1 p-6 bg-white shadow-md rounded-lg">
+          <h3 className="text-lg font-bold mb-4">Kilometers traveled</h3>
+          <Bar data={KilometersDataStatus} />
+        </div>
 
-      <div className="col-span-1 p-4 bg-white shadow-md rounded-lg">
-        <h3 className="text-lg font-bold">Maintenance History</h3>
-        <Bar data={maintenanceDataStatus} />
+        <div className="col-span-1 p-6 bg-white shadow-md rounded-lg">
+          <h3 className="text-lg font-bold mb-4">Maintenance History</h3>
+          <Bar data={maintenanceDataStatus} />
+        </div>
       </div>
     </div>
   );

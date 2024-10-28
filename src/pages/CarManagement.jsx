@@ -87,7 +87,7 @@ const CarManagement = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="min-h-screen bg-gray-100 p-8">
       <h2 className="text-3xl font-bold mb-6 text-gray-800">Car Management</h2>
 
       <div className="mb-6 flex justify-end">
@@ -98,7 +98,7 @@ const CarManagement = () => {
         </Link>
       </div>
 
-      <div className="overflow-x-auto shadow-md sm:rounded-lg">
+      <div className="overflow-x-auto bg-white shadow-md sm:rounded-lg p-4">
         <table className="min-w-full bg-white">
           <thead className="bg-gray-100">
             <tr>
