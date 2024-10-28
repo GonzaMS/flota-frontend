@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import useUser from "../hooks/useUser";
@@ -12,6 +13,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const { login } = useAuth();
   const [localError, setLocalError] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
 
@@ -58,15 +60,25 @@ const Login = () => {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
+
             <div className="space-y-2 text-start">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                required
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  required
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3"
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}{" "}
+                </button>
+              </div>
             </div>
             <Button className="w-full" type="submit" disabled={isLoading}>
               {isLoading ? "Loading..." : "Login"}
