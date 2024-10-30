@@ -26,13 +26,25 @@ const useReports = () => {
 
   const getReports = async () => {
     const token = getToken();
-    return handleRequest(() =>
-      api.get(`${REPORTS_URL}/export`, {
+    return handleRequest(async () => {
+      const res = await api.get(`${REPORTS_URL}/export`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
-    );
+        responseType: "blob",
+      });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      console.log(url);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "reporte_vehiculos.pdf"); // Report name
+      document.body.appendChild(link);
+
+      console.log(res.data);
+      link.click();
+      link.parentNode.removeChild(link);
+      return res.data;
+    });
   };
 
   return {

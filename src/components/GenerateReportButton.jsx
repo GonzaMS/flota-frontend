@@ -1,24 +1,13 @@
 import { Button } from "@/components/ui/button";
-import axios from "axios";
-import { saveAs } from "file-saver";
+import useReports from "@/hooks/useReports";
 import { FaFileAlt } from "react-icons/fa";
 
 const GenerateReportButton = () => {
-  const apiURL = "/api/v1/car-reports/export";
+  const { getReports } = useReports();
 
   const handleGenerateReport = async () => {
-    try {
-      const response = await axios.get(apiURL, {
-        responseType: "blob",
-      });
-
-      console.log(response);
-
-      const pdfBlob = new Blob([response.data], { type: "application/pdf" });
-      saveAs(pdfBlob, "reporte_vehiculos.pdf");
-    } catch (error) {
-      console.error("Error generating the report:", error);
-    }
+    const res = await getReports();
+    console.log(res);
   };
 
   return (

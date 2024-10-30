@@ -41,13 +41,14 @@ const Login = () => {
   };
 
   return (
-    <div className="flex items-center justify-center">
-      <div className="mx-auto max-w-sm w-full">
+    <div className="flex items-center justify-center shadow-lg ">
+      <div className="bg-white shadow-lg rounded-lg p-8 mx-auto max-w-sm w-full">
         <div>
           <h1 className="text-indigo-600 font-black text-3xl text-center">
             Login to manage your car fleet
           </h1>
         </div>
+
         <form onSubmit={handleSubmit} className="mt-6">
           <div className="space-y-4">
             <div className="space-y-2 text-start">
@@ -80,6 +81,11 @@ const Login = () => {
                   {showPassword ? <FaEyeSlash /> : <FaEye />}{" "}
                 </button>
               </div>
+            </div>
+
+            {/* Forgot password */}
+            <div className="text-right text-blue-700 hover:text-blue-500">
+              <a href="/forgot_password">Forgot password?</a>
             </div>
             <Button className="w-full" type="submit" disabled={isLoading}>
               {isLoading ? "Loading..." : "Login"}

@@ -128,8 +128,8 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-start p-6">
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 w-full max-w-7xl mt-12">
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-start py-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 w-full max-w-7xl mt-12">
         <div className="col-span-1 p-6 bg-white shadow-md rounded-lg">
           <h3 className="text-lg font-bold mb-4">Car States</h3>
           <Pie data={carStatusData} />

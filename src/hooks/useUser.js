@@ -35,7 +35,19 @@ const useUser = () => {
     return handleRequest(() => api.get(`${USER_URL}/activate?token=${token}`));
   };
 
-  return { error, isLoading, users, registerUser, getLogin, activateAccount };
+  const forgotPassword = async (params) => {
+    return handleRequest(() => api.post(`${USER_URL}/forgot_password`, params));
+  };
+
+  return {
+    error,
+    isLoading,
+    users,
+    registerUser,
+    getLogin,
+    activateAccount,
+    forgotPassword,
+  };
 };
 
 export default useUser;

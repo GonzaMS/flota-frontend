@@ -87,10 +87,9 @@ const CarManagement = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <h2 className="text-3xl font-bold mb-6 text-gray-800">Car Management</h2>
-
-      <div className="mb-6 flex justify-end">
+    <div className="min-h-screen bg-gray-100">
+      <div className="mb-6 flex justify-between items-center pt-20">
+        <h2 className="text-3xl font-bold text-gray-800">Car Management</h2>
         <Link to="/dashboard/cars/new">
           <Button className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded shadow">
             Add New Car

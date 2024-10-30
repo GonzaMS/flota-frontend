@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input"; // Suponiendo que tienes un componente Input personalizado
-import { Label } from "@/components/ui/label"; // Suponiendo que tienes un componente Label personalizado
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import useCars from "@/hooks/useCars";
 import { useEffect, useState } from "react";
-import { AiOutlineArrowLeft } from "react-icons/ai"; // Importamos el ícono de flecha
+import { AiOutlineArrowLeft } from "react-icons/ai";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const CarForm = () => {
   const { carId } = useParams();
@@ -38,6 +39,7 @@ const CarForm = () => {
     try {
       await saveCar(carData);
       navigate("/dashboard/cars");
+      toast.success("Car saved successfully!");
     } catch (error) {
       console.error("Error saving car:", error);
     }
