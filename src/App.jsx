@@ -1,7 +1,10 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import "./App.css";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import CarForm from "./components/CarForm";
 import AuthLayout from "./layout/AuthLayout";
 import DashboardLayout from "./layout/DashboardLayout";
+import CarManagement from "./pages/CarManagement";
 import ConfirmAccount from "./pages/ConfirmAccount";
 import Dashboard from "./pages/Dashboard";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -11,25 +14,31 @@ import ProtectedRoute from "./routes-app/ProtectedRoutes";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Rutas públicas, envueltas en el AuthLayout */}
-        <Route path="/" element={<AuthLayout />}>
-          <Route index element={<Login />} />
-          <Route path="register" element={<Register />} />
-          <Route path="forgot_password" element={<ForgotPassword />} />
-          <Route path="confirm_account/:id" element={<ConfirmAccount />} />
-        </Route>
-
-        {/* Rutas protegidas con DashboardLayout */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<DashboardLayout />}>
-            <Route index element={<Dashboard />} />
-            {/* Agrega más rutas anidadas dentro de dashboard aquí */}
+    <>
+      <BrowserRouter>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={<AuthLayout />}>
+            <Route index element={<Login />} />
+            <Route path="register" element={<Register />} />
+            <Route path="forgot_password" element={<ForgotPassword />} />
+            <Route path="confirm_account/:id" element={<ConfirmAccount />} />
           </Route>
-        </Route>
-      </Routes>
-    </BrowserRouter>
+
+          {/* Protected routes dashboard */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/dashboard" element={<DashboardLayout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="/dashboard/cars" element={<CarManagement />} />
+              <Route path="/dashboard/cars/new" element={<CarForm />} />
+              <Route path="/dashboard/cars/:carId/edit" element={<CarForm />} />
+            </Route>
+          </Route>
+        </Routes>
+      </BrowserRouter>
+
+      <ToastContainer />
+    </>
   );
 }
 

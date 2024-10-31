@@ -1,10 +1,12 @@
-import { useState } from "react";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import { Error } from "@/components/Error";
 import { Button } from "@/components/ui/button";
-import useUser from "../hooks/useUser";
-import { useAuth } from "../context/AuthContext";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import useUser from "../hooks/useUser";
 
 const Login = () => {
   const { getLogin, isLoading } = useUser();
@@ -12,6 +14,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const { login } = useAuth();
   const [localError, setLocalError] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
 
@@ -38,36 +41,51 @@ const Login = () => {
   };
 
   return (
-    <>
-      <div>
-        <h1 className="text-indigo-600 font-black text-3xl">
-          Login to manage your car fleet
-        </h1>
-      </div>
+    <div className="flex items-center justify-center shadow-lg ">
+      <div className="bg-white shadow-lg rounded-lg p-8 mx-auto max-w-sm w-full">
+        <div>
+          <h1 className="text-indigo-600 font-black text-3xl text-center">
+            Login to manage your car fleet
+          </h1>
+        </div>
 
-      <div className="mx-auto max-w-sm w-full">
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-4 pro:mt-10 sm:mt-0">
+        <form onSubmit={handleSubmit} className="mt-6">
+          <div className="space-y-4">
             <div className="space-y-2 text-start">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
-                placeholder="m@example.com"
+                placeholder="jondoe@example.com"
                 required
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
+
             <div className="space-y-2 text-start">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                required
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  required
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3"
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}{" "}
+                </button>
+              </div>
+            </div>
+
+            {/* Forgot password */}
+            <div className="text-right text-blue-700 hover:text-blue-500">
+              <a href="/forgot_password">Forgot password?</a>
             </div>
             <Button className="w-full" type="submit" disabled={isLoading}>
               {isLoading ? "Loading..." : "Login"}
@@ -75,8 +93,7 @@ const Login = () => {
 
             {/* Show errors */}
             {localError && (
-              <div className="text-red-500">
-                {/* Show validation errors */}
+              <Error>
                 {localError.validationErrors &&
                 localError.validationErrors.length > 0 ? (
                   <ul>
@@ -85,14 +102,14 @@ const Login = () => {
                     ))}
                   </ul>
                 ) : (
-                  <p>Error: {localError.message || "Unknown error"}</p>
+                  <p>{localError.message || "Unknown error"}</p>
                 )}
-              </div>
+              </Error>
             )}
           </div>
         </form>
       </div>
-    </>
+    </div>
   );
 };
 
