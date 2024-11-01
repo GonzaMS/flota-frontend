@@ -4,6 +4,7 @@ import {
   FaClipboardList,
   FaTimes,
   FaUser,
+  FaClipboardCheck,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import GenerateReportButton from "./GenerateReportButton";
@@ -43,6 +44,12 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             <FaUser size={24} />
             <Link to="/dashboard/drivers" className="hover:text-indigo-400">
               {isOpen && "Driver Management"}
+            </Link>
+          </li>
+          <li className="flex items-center space-x-6">
+            <FaClipboardCheck size={24} /> 
+            <Link to="/dashboard/driver-activity" className="hover:text-indigo-400">
+              {isOpen && "Driver Activity"}
             </Link>
           </li>
           <li className="flex items-center space-x-6">
