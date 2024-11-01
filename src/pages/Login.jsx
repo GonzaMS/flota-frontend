@@ -10,9 +10,10 @@ import useUser from "../hooks/useUser";
 
 const Login = () => {
   const { getLogin, isLoading } = useUser();
+  const { login } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login } = useAuth();
   const [localError, setLocalError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
 
