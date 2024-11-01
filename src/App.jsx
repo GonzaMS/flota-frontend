@@ -22,7 +22,7 @@ function App() {
             <Route index element={<Login />} />
             <Route path="register" element={<Register />} />
             <Route path="forgot_password" element={<ForgotPassword />} />
-            <Route path="confirm_account/:id" element={<ConfirmAccount />} />
+            <Route path="confirm_account/:code" element={<ConfirmAccount />} />
           </Route>
 
           {/* Protected routes dashboard */}

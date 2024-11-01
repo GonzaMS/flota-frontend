@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 
 const CarForm = () => {
   const { carId } = useParams();
-  const { getById, saveCar } = useCars();
+  const { getById, createCar } = useCars();
   const [carData, setCarData] = useState({
     brand: "",
     model: "",
@@ -37,7 +37,7 @@ const CarForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await saveCar(carData);
+      await createCar(carData);
       navigate("/dashboard/cars");
       toast.success("Car saved successfully!");
     } catch (error) {
