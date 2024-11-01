@@ -1,19 +1,25 @@
+import useUser from "@/hooks/useUser";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import useUser from "../hooks/useUser";
 
 const ConfirmAccount = () => {
   const { code } = useParams();
   const { activateAccount, error, isLoading } = useUser();
   const [confirmationStatus, setConfirmationStatus] = useState(null);
 
+  const navigate = useNavigate();
+
   const handleActivateAccount = async () => {
-    console.log(code);
     try {
       const res = await activateAccount(code);
-      setConfirmationStatus(res.message || "Account activated.");
-      toast.success("Account activated successfully .");
+      console.log(res);
+
+      if (res.activation) {
+        setConfirmationStatus("Account activated successfully.");
+        toast.success("Account activated successfully.");
+        navigate("/");
+      }
     } catch (err) {
       console.error(err);
       setConfirmationStatus(err.message || "Error activating the account.");

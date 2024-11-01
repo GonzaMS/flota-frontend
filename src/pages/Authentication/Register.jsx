@@ -2,11 +2,11 @@ import { Error } from "@/components/Error";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import useUser from "@/hooks/useUser";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import useUser from "../hooks/useUser";
 
 const Register = () => {
   const { registerUser, isLoading } = useUser();
@@ -51,7 +51,7 @@ const Register = () => {
         toast.success(
           "Account created successfully. Please check your email to confirm your account."
         );
-        navigate("/");
+        //navigate("/");
       } else {
         setLocalError(res);
       }
@@ -166,7 +166,7 @@ const Register = () => {
               {isLoading ? "Loading..." : "Register"}
             </Button>
 
-            {/* Mostrar errores */}
+            {/* Show errors*/}
             {localError && (
               <Error>
                 {localError.validationErrors &&

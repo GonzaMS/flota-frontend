@@ -4,6 +4,7 @@ import {
   FaClipboardList,
   FaTimes,
   FaUser,
+  FaWrench, // Añadir icono de mantenimiento
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import GenerateReportButton from "./GenerateReportButton";
@@ -49,6 +50,12 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             <FaClipboardList size={24} />
             <Link to="/dashboard/orders" className="hover:text-indigo-400">
               {isOpen && "Travel Orders Management"}
+            </Link>
+          </li>
+          <li className="flex items-center space-x-6">
+            <FaWrench size={24} />
+            <Link to="/dashboard/maintenance" className="hover:text-indigo-400">
+              {isOpen && "Car Maintenance"}
             </Link>
           </li>
         </ul>

@@ -57,7 +57,7 @@ const DashboardHeader = ({ isOpen }) => {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="flex items-center text-gray-300 hover:bg-gray-700 rounded-md px-2 py-1">
-                <span>{displayRole}</span>
+                <span>Role: {displayRole}</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem

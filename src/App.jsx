@@ -2,14 +2,16 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import CarForm from "./components/CarForm";
+import MaintenanceForm from "./components/MaintenanceForm";
 import AuthLayout from "./layout/AuthLayout";
 import DashboardLayout from "./layout/DashboardLayout";
-import CarManagement from "./pages/CarManagement";
-import ConfirmAccount from "./pages/ConfirmAccount";
+import ConfirmAccount from "./pages/Authentication/ConfirmAccount";
+import ForgotPassword from "./pages/Authentication/ForgotPassword";
+import Login from "./pages/Authentication/Login";
+import Register from "./pages/Authentication/Register";
+import CarMaintenance from "./pages/Car/CarMaintenance";
+import CarManagement from "./pages/Car/CarManagement";
 import Dashboard from "./pages/Dashboard";
-import ForgotPassword from "./pages/ForgotPassword";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
 import ProtectedRoute from "./routes-app/ProtectedRoutes";
 
 function App() {
@@ -25,13 +27,27 @@ function App() {
             <Route path="confirm_account/:code" element={<ConfirmAccount />} />
           </Route>
 
-          {/* Protected routes dashboard */}
+          {/* Protected routes for the dashboard */}
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<DashboardLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="/dashboard/cars" element={<CarManagement />} />
               <Route path="/dashboard/cars/new" element={<CarForm />} />
               <Route path="/dashboard/cars/:carId/edit" element={<CarForm />} />
+
+              {/* Maintenance routes */}
+              <Route
+                path="/dashboard/maintenance"
+                element={<CarMaintenance />}
+              />
+              <Route
+                path="/dashboard/maintenance/new"
+                element={<MaintenanceForm />}
+              />
+              <Route
+                path="/dashboard/maintenance/:maintenanceId/edit"
+                element={<MaintenanceForm />}
+              />
             </Route>
           </Route>
         </Routes>
