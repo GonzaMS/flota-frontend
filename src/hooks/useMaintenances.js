@@ -42,59 +42,36 @@ const useMaintenances = () => {
     const token = getToken();
     return handleRequest(() =>
       api.get(`${MAINTENANCES_URL}?pageNumber=${page}&pageSize=${pageSize}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       })
     );
   };
 
-  const getById = async (id) => {
+  const getByCarId = async (carId, page = 0, pageSize = 10) => {
     const token = getToken();
     return handleRequest(() =>
-      api.get(`${MAINTENANCES_URL}/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      api.get(
+        `${MAINTENANCES_URL}/car/${carId}?pageNumber=${page}&pageSize=${pageSize}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      )
     );
   };
 
-  const createMaintenance = async (maintenance) => {
+  const getByDate = async (startDate, endDate, page = 0, pageSize = 10) => {
     const token = getToken();
     return handleRequest(() =>
-      api.post(MAINTENANCES_URL, maintenance, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      api.post(
+        `${MAINTENANCES_URL}/date?pageNumber=${page}&pageSize=${pageSize}`,
+        { startDate, endDate },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      )
     );
   };
 
-  const updateMaintenance = async (maintenance) => {
-    const token = getToken();
-    return handleRequest(() =>
-      api.put(`${MAINTENANCES_URL}/${maintenance.id}`, maintenance, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-    );
-  };
-
-  const deleteMaintenance = async (id) => {
-    const token = getToken();
-    return handleRequest(() =>
-      api.delete(`${MAINTENANCES_URL}/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-    );
-  };
-
-  // Filter
-  // Car Id and Date Range
   const getByCarIdAndDate = async (
     carId,
     startDate,
@@ -103,17 +80,54 @@ const useMaintenances = () => {
     pageSize = 10
   ) => {
     const token = getToken();
+
     return handleRequest(() =>
-      api.get(
-        `${MAINTENANCES_URL}/filter?carId=${carId}&pageNumber=${page}&pageSize=${pageSize}`,
-        startDate,
-        endDate,
+      api.post(
+        `${MAINTENANCES_URL}/car/${carId}/date?pageNumber=${page}&pageSize=${pageSize}`,
+        { startDate, endDate },
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         }
       )
+    );
+  };
+
+  const getById = async (id) => {
+    const token = getToken();
+    return handleRequest(() =>
+      api.get(`${MAINTENANCES_URL}/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+    );
+  };
+
+  const createMaintenance = async (maintenance) => {
+    const token = getToken();
+    return handleRequest(() =>
+      api.post(MAINTENANCES_URL, maintenance, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+    );
+  };
+
+  const updateMaintenance = async (maintenance) => {
+    const token = getToken();
+    return handleRequest(() =>
+      api.put(`${MAINTENANCES_URL}/${maintenance.id}`, maintenance, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+    );
+  };
+
+  const deleteMaintenance = async (id) => {
+    const token = getToken();
+    return handleRequest(() =>
+      api.delete(`${MAINTENANCES_URL}/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
     );
   };
 
@@ -123,11 +137,13 @@ const useMaintenances = () => {
     error,
     isLoading,
     getMaintenances,
+    getByCarId,
+    getByDate,
+    getByCarIdAndDate,
     getById,
     createMaintenance,
     updateMaintenance,
     deleteMaintenance,
-    getByCarIdAndDate,
   };
 };
 

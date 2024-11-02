@@ -3,15 +3,33 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import useCars from "@/hooks/useCars";
 import useMaintenances from "@/hooks/useMaintenances";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { AiOutlineArrowLeft } from "react-icons/ai";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+
+const fetchCarsData = async (getCars, setCars) => {
+  const carsData = await getCars();
+  setCars(carsData.items);
+};
+
+const loadMaintenanceData = async (maintenanceId, getById, setFormData) => {
+  if (!maintenanceId) return;
+  const data = await getById(maintenanceId);
+  setFormData({
+    carId: data.carId,
+    description: data.description,
+    cost: data.cost,
+    type: data.type,
+  });
+};
 
 const MaintenanceForm = () => {
   const { maintenanceId } = useParams();
   const navigate = useNavigate();
   const { getById, createMaintenance, updateMaintenance } = useMaintenances();
   const { getCars } = useCars();
+
   const [cars, setCars] = useState([]);
   const [formData, setFormData] = useState({
     carId: "",
@@ -19,53 +37,59 @@ const MaintenanceForm = () => {
     cost: "",
     type: "",
   });
+  const [currentCarName, setCurrentCarName] = useState("");
+
+  const fetchInitialData = useCallback(async () => {
+    await fetchCarsData(getCars, setCars);
+    await loadMaintenanceData(maintenanceId, getById, setFormData);
+  }, [getCars, maintenanceId, getById]);
 
   useEffect(() => {
-    fetchCars();
-    if (maintenanceId) {
-      loadMaintenance();
-    }
-  }, [maintenanceId]);
+    fetchInitialData();
+  }, [fetchInitialData]);
 
-  const fetchCars = async () => {
-    const carsData = await getCars();
-    setCars(carsData.items);
-  };
-
-  const loadMaintenance = async () => {
-    const data = await getById(maintenanceId);
-    setFormData({
-      carId: data.carId,
-      description: data.description,
-      cost: data.cost,
-      type: data.type,
-    });
-  };
+  useEffect(() => {
+    const car = cars.find((car) => car.id === formData.carId);
+    setCurrentCarName(
+      car ? `${car.brand} ${car.model} - ${car.licensePlate}` : ""
+    );
+  }, [formData.carId, cars]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       if (maintenanceId) {
-        await updateMaintenance(maintenanceId, formData);
+        await updateMaintenance({ ...formData, id: maintenanceId });
         toast.success("Maintenance updated successfully!");
       } else {
         await createMaintenance(formData);
         toast.success("Maintenance created successfully!");
       }
       navigate("/dashboard/maintenance");
-    } catch (error) {
+    } catch {
       toast.error("Error saving maintenance.");
     }
   };
 
+  const { description, cost, type } = formData;
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="p-8 bg-white shadow-lg rounded-lg max-w-lg w-full">
+        <div className="mb-6 flex items-center">
+          <button
+            onClick={() => navigate("/dashboard/maintenance")}
+            className="flex items-center text-gray-600 hover:text-indigo-600"
+          >
+            <AiOutlineArrowLeft className="mr-2" size={24} />
+            <span className="font-semibold">Back to maintenances</span>
+          </button>
+        </div>
         <h2 className="text-3xl font-bold text-center text-indigo-600 mb-8">
           {maintenanceId ? "Edit Maintenance" : "Add New Maintenance"}
         </h2>
@@ -73,26 +97,17 @@ const MaintenanceForm = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <Label
-              htmlFor="carId"
+              htmlFor="carName"
               className="block font-semibold text-gray-700"
             >
-              Select Car
+              Car
             </Label>
-            <select
-              id="carId"
-              name="carId"
-              value={formData.carId}
-              onChange={handleChange}
-              className="w-full mt-1 p-2 border rounded"
-              required
-            >
-              <option value="">Choose a car</option>
-              {cars.map((car) => (
-                <option key={car.id} value={car.id}>
-                  {car.brand} {car.model} - {car.licensePlate}
-                </option>
-              ))}
-            </select>
+            <Input
+              id="carName"
+              value={currentCarName}
+              readOnly
+              className="w-full mt-1 text-gray-800"
+            />
           </div>
 
           <div>
@@ -105,7 +120,7 @@ const MaintenanceForm = () => {
             <Input
               id="description"
               name="description"
-              value={formData.description}
+              value={description}
               onChange={handleChange}
               placeholder="Enter description"
               required
@@ -121,7 +136,7 @@ const MaintenanceForm = () => {
               type="number"
               id="cost"
               name="cost"
-              value={formData.cost}
+              value={cost}
               onChange={handleChange}
               placeholder="Enter cost"
               required
@@ -136,7 +151,7 @@ const MaintenanceForm = () => {
             <Input
               id="type"
               name="type"
-              value={formData.type}
+              value={type}
               onChange={handleChange}
               placeholder="Enter type"
               required

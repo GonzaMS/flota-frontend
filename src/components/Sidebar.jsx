@@ -4,10 +4,10 @@ import {
   FaClipboardList,
   FaTimes,
   FaUser,
-  FaWrench, // Añadir icono de mantenimiento
+  FaWrench,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import GenerateReportButton from "./GenerateReportButton";
+import GenerateReportButton from "./car/GenerateReportButton";
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   return (

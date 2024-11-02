@@ -1,16 +1,16 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import CarForm from "./components/CarForm";
-import MaintenanceForm from "./components/MaintenanceForm";
+import CarForm from "./components/car/CarForm";
+import MaintenanceForm from "./components/car/MaintenanceForm";
 import AuthLayout from "./layout/AuthLayout";
 import DashboardLayout from "./layout/DashboardLayout";
-import ConfirmAccount from "./pages/Authentication/ConfirmAccount";
-import ForgotPassword from "./pages/Authentication/ForgotPassword";
-import Login from "./pages/Authentication/Login";
-import Register from "./pages/Authentication/Register";
-import CarMaintenance from "./pages/Car/CarMaintenance";
-import CarManagement from "./pages/Car/CarManagement";
+import ConfirmAccount from "./pages/authentication/ConfirmAccount";
+import ForgotPassword from "./pages/authentication/ForgotPassword";
+import Login from "./pages/authentication/Login";
+import Register from "./pages/authentication/Register";
+import CarMaintenance from "./pages/car/CarMaintenance";
+import CarManagement from "./pages/car/CarManagement";
 import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./routes-app/ProtectedRoutes";
 

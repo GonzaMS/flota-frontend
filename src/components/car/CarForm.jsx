@@ -32,7 +32,7 @@ const CarForm = () => {
         ...res,
         fabricationYear: res.fabricationYear
           ? res.fabricationYear.slice(0, 4)
-          : "", // Solo el año
+          : "", // Only year
       });
     } catch (error) {
       console.error("Error fetching car data:", error);

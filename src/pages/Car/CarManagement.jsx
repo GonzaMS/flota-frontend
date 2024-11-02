@@ -1,8 +1,9 @@
+import Loader from "@/components/common/Loader";
+import Pagination from "@/components/common/Pagination";
 import { Button } from "@/components/ui/button";
 import useCars from "@/hooks/useCars";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import ReactPaginate from "react-paginate";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -12,22 +13,22 @@ const CarManagement = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const { getCars, deleteCar, pagination } = useCars();
 
-  const fetchCars = async (page = 0) => {
+  const fetchCars = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await getCars(page, pagination.pageSize);
+      const res = await getCars(currentPage, pagination.pageSize);
       setCarsData(res.items);
-      setLoading(false);
     } catch (error) {
       console.error("Error fetching cars:", error);
-      setLoading(false);
       toast.error("Failed to load cars.");
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [getCars, currentPage, pagination.pageSize]);
 
   useEffect(() => {
-    fetchCars(currentPage);
-  }, [currentPage]);
+    fetchCars();
+  }, [currentPage, pagination.pageSize]);
 
   const handleDelete = (carId) => {
     toast.info(
@@ -36,36 +37,25 @@ const CarManagement = () => {
         <div className="flex justify-end">
           <Button
             className="mr-2 bg-red-500 text-white"
-            onClick={() => confirmDelete(carId)}
+            onClick={async () => {
+              await deleteCar(carId);
+              fetchCars();
+              toast.dismiss();
+              toast.success("Car deleted successfully!");
+            }}
           >
             Delete
           </Button>
-          <Button className="bg-gray-500 text-white" onClick={cancelDelete}>
+          <Button
+            className="bg-gray-500 text-white"
+            onClick={() => toast.dismiss()}
+          >
             Cancel
           </Button>
         </div>
       </>,
-      {
-        autoClose: false,
-        closeButton: false,
-      }
+      { autoClose: false, closeButton: false }
     );
-  };
-
-  const confirmDelete = async (carId) => {
-    try {
-      await deleteCar(carId);
-      fetchCars(currentPage);
-      toast.dismiss();
-      toast.success("Car deleted successfully!");
-    } catch (error) {
-      console.error("Error deleting car:", error);
-      toast.error("Error deleting car.");
-    }
-  };
-
-  const cancelDelete = () => {
-    toast.dismiss();
   };
 
   const handlePageClick = (event) => {
@@ -73,21 +63,10 @@ const CarManagement = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="sk-chase">
-          <div className="sk-chase-dot"></div>
-          <div className="sk-chase-dot"></div>
-          <div className="sk-chase-dot"></div>
-          <div className="sk-chase-dot"></div>
-          <div className="sk-chase-dot"></div>
-          <div className="sk-chase-dot"></div>
-        </div>
-      </div>
-    );
+    return <Loader />;
   }
 
-  if (!carsData || carsData.length === 0) {
+  if (!carsData.length) {
     return (
       <p className="text-center text-lg font-semibold">No cars available.</p>
     );
@@ -108,24 +87,21 @@ const CarManagement = () => {
         <table className="min-w-full bg-white">
           <thead className="bg-indigo-700 text-white">
             <tr>
-              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
-                Brand
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
-                Model
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
-                Year
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
-                License Plate
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
-                State
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
-                Actions
-              </th>
+              {[
+                "Brand",
+                "Model",
+                "Year",
+                "License Plate",
+                "State",
+                "Actions",
+              ].map((header) => (
+                <th
+                  key={header}
+                  className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider"
+                >
+                  {header}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -172,22 +148,9 @@ const CarManagement = () => {
       </div>
 
       <div className="flex justify-center mt-8">
-        <ReactPaginate
-          previousLabel={<span className="px-3 py-1">« Prev</span>}
-          nextLabel={<span className="px-3 py-1">Next »</span>}
-          breakLabel={<span className="px-3 py-1">...</span>}
+        <Pagination
           pageCount={pagination.totalPages}
-          marginPagesDisplayed={2}
-          pageRangeDisplayed={3}
           onPageChange={handlePageClick}
-          containerClassName="flex items-center space-x-2 text-sm font-medium"
-          pageClassName="page-item"
-          pageLinkClassName="page-link px-3 py-2 border border-gray-300 rounded-md hover:bg-indigo-200 hover:text-indigo-800 transition-colors"
-          previousLinkClassName="page-link px-3 py-2 border border-gray-300 rounded-md hover:bg-indigo-200 hover:text-indigo-700 transition-colors"
-          nextLinkClassName="page-link px-3 py-2 border border-gray-300 rounded-md hover:bg-indigo-200 hover:text-indigo-700 transition-colors"
-          breakClassName="page-item"
-          activeLinkClassName="bg-indigo-700 text-white"
-          activeClassName="page-item"
         />
       </div>
     </div>

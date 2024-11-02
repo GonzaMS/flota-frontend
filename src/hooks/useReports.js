@@ -37,7 +37,7 @@ const useReports = () => {
       console.log(url);
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", "reporte_vehiculos.pdf"); // Report name
+      link.setAttribute("download", "reporte_vehiculos.pdf");
       document.body.appendChild(link);
 
       console.log(res.data);

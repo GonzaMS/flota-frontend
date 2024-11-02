@@ -8,26 +8,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/context/AuthContext";
+import { getUserFromLocalStorage,formatRole,formatUsername} from "@/utils/userUtils";
+import { useEffect, useState } from "react";
 import { FaSignOutAlt, FaUser } from "react-icons/fa";
 
 const DashboardHeader = ({ isOpen }) => {
   const { logout } = useAuth();
+  const [user, setUser] = useState({});
 
-  const user = JSON.parse(localStorage.getItem("user"));
-  const username = user.username;
+  useEffect(() => {
+    setUser(getUserFromLocalStorage());
+  }, []);
 
-  const role = Array.isArray(user.role) ? user.role[0] : user.role;
-
-  const removeGmailFromUsername = (username) => {
-    return username.split("@")[0];
-  };
-
-  const removeRolePrefix = (role) => {
-    return role.split("_")[1];
-  };
-
-  const displayName = removeGmailFromUsername(username);
-  const displayRole = removeRolePrefix(role);
+  const username = formatUsername(user.username);
+  const role = formatRole(Array.isArray(user.role) ? user.role[0] : user.role);
 
   return (
     <header
@@ -48,7 +42,7 @@ const DashboardHeader = ({ isOpen }) => {
                 className="flex items-center bg-gray-700 hover:bg-gray-600 text-white"
               >
                 <FaUser className="mr-2" />
-                {displayName}
+                {username}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56 bg-gray-800 border border-gray-700 rounded-lg shadow-lg">
@@ -57,12 +51,12 @@ const DashboardHeader = ({ isOpen }) => {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="flex items-center text-gray-300 hover:bg-gray-700 rounded-md px-2 py-1">
-                <span>Role: {displayRole}</span>
+                <span>Role: {role}</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="flex items-center text-gray-300 hover:bg-gray-700 rounded-md px-2 py-1 cursor-pointer"
-                onClick={() => logout()}
+                onClick={logout}
               >
                 <FaSignOutAlt className="mr-2" />
                 Log out
