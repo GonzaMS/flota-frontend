@@ -4,11 +4,13 @@ import "react-toastify/dist/ReactToastify.css";
 import CarForm from "./components/CarForm";
 import DriverForm from './components/DriverForm';
 import DrivingHistoryForm from './components/DrivingHistoryForm';
+import DriverIncidentsForm from './components/DriverIncidentsForm';
 import AuthLayout from "./layout/AuthLayout";
 import DashboardLayout from "./layout/DashboardLayout";
 import CarManagement from "./pages/CarManagement";
 import DriverManagement from './pages/DriverManagement';
 import DriverHistoryManagement from './pages/DriverHistoryManagement';
+import DriverIncidentsManagement from './pages/DriverIncidentsManagement'; 
 import ConfirmAccount from "./pages/ConfirmAccount";
 import Dashboard from "./pages/Dashboard";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -41,7 +43,10 @@ function App() {
               <Route path="/dashboard/drivers/:driverId/edit" element={<DriverForm />} />
               <Route path="/dashboard/driver-activity" element={<DriverHistoryManagement />} />
               <Route path="/dashboard/driver-activity/new" element={<DrivingHistoryForm />} />
-              <Route path="/dashboard/driver-activity/:driverId/edit" element={<DrivingHistoryForm />} />
+              <Route path="/dashboard/driver-activity/:drivingHistoryId/edit" element={<DrivingHistoryForm />} />
+              <Route path="/dashboard/driver-incidents" element={<DriverIncidentsManagement />} /> 
+              <Route path="/dashboard/driver-incidents/new" element={<DriverIncidentsForm />} /> 
+              <Route path="/dashboard/driver-incidents/:incidentId/edit" element={<DriverIncidentsForm />} /> 
               
             </Route>
             

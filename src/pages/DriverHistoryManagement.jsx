@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import useDrivingHistory from "@/hooks/useDrivingHistory";
+import useDrivingHistory from "@/hooks/useDrivingHistory"; 
 import { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link } from "react-router-dom";
@@ -13,7 +13,7 @@ const DriverHistoryManagement = () => {
   const fetchHistory = async () => {
     try {
       const res = await getDrivingHistories();
-      setHistoryData(res.items);
+      setHistoryData(res.items); 
       setLoading(false);
     } catch (error) {
       console.error("Error fetching driving history:", error);
@@ -31,10 +31,7 @@ const DriverHistoryManagement = () => {
       <>
         <p>Are you sure you want to delete this driving history?</p>
         <div className="flex justify-end">
-          <Button
-            className="mr-2 bg-red-500 text-white"
-            onClick={() => confirmDelete(drivingHistoryId)}
-          >
+          <Button className="mr-2 bg-red-500 text-white" onClick={() => confirmDelete(drivingHistoryId)}>
             Delete
           </Button>
           <Button className="bg-gray-500 text-white" onClick={cancelDelete}>
@@ -81,19 +78,13 @@ const DriverHistoryManagement = () => {
   }
 
   if (!historyData || historyData.length === 0) {
-    return (
-      <p className="text-center text-lg font-semibold">
-        No driving history available.
-      </p>
-    );
+    return <p className="text-center text-lg font-semibold">No driving history available.</p>;
   }
 
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="mb-6 flex justify-between items-center pt-20">
-        <h2 className="text-3xl font-bold text-gray-800">
-          Driving History Management
-        </h2>
+        <h2 className="text-3xl font-bold text-gray-800">Driving History Management</h2>
         <Link to="/dashboard/driver-activity/new">
           <Button className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded shadow">
             Add New Driving History
@@ -105,48 +96,22 @@ const DriverHistoryManagement = () => {
         <table className="min-w-full bg-white">
           <thead className="bg-gray-100">
             <tr>
-              <th className="px-6 py-3 text-left text-sm font-bold text-gray-600 uppercase tracking-wider">
-                Driving History ID
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-bold text-gray-600 uppercase tracking-wider">
-                Driving Date
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-bold text-gray-600 uppercase tracking-wider">
-                Kilometers Driven
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-bold text-gray-600 uppercase tracking-wider">
-                Driver ID
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-bold text-gray-600 uppercase tracking-wider">
-                Car ID
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-bold text-gray-600 uppercase tracking-wider">
-                Actions
-              </th>
+              <th className="px-6 py-3 text-left text-sm font-bold text-gray-600 uppercase tracking-wider">Driving History ID</th>
+              <th className="px-6 py-3 text-left text-sm font-bold text-gray-600 uppercase tracking-wider">Driving Date</th>
+              <th className="px-6 py-3 text-left text-sm font-bold text-gray-600 uppercase tracking-wider">Kilometers Driven</th>
+              <th className="px-6 py-3 text-left text-sm font-bold text-gray-600 uppercase tracking-wider">Driver ID</th>
+              <th className="px-6 py-3 text-left text-sm font-bold text-gray-600 uppercase tracking-wider">Car ID</th>
+              <th className="px-6 py-3 text-left text-sm font-bold text-gray-600 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {historyData.map((history, index) => (
-              <tr
-                key={history.drivingHistoryId}
-                className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
-              >
-                <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
-                  {history.drivingHistoryId}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
-                  {new Date(history.createdAt).toLocaleDateString()}
-                  {""}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
-                  {history.kmDriven}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
-                  {history.driverId}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
-                  {history.carId}
-                </td>
+              <tr key={history.drivingHistoryId} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
+                <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">{history.drivingHistoryId}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">{new Date(history.createdAt).toLocaleDateString()}{""}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">{history.kmDriven}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">{history.driverId}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">{history.carId}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-base font-medium flex space-x-3">
                   <Link
                     to={`/dashboard/driver-activity/${history.drivingHistoryId}/edit`}

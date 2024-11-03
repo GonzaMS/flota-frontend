@@ -5,11 +5,20 @@ import {
   FaTimes,
   FaUser,
   FaClipboardCheck,
+  FaHistory, 
+  FaExclamationTriangle,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import GenerateReportButton from "./GenerateReportButton";
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
+  const [isSubmenuOpen, setIsSubmenuOpen] = useState(false);
+
+  const toggleSubmenu = () => {
+    setIsSubmenuOpen(!isSubmenuOpen);
+  };
+
   return (
     <div
       className={`${
@@ -46,12 +55,39 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
               {isOpen && "Driver Management"}
             </Link>
           </li>
-          <li className="flex items-center space-x-6">
-            <FaClipboardCheck size={24} /> 
-            <Link to="/dashboard/driver-activity" className="hover:text-indigo-400">
-              {isOpen && "Driver Activity"}
-            </Link>
+
+          <li className="flex flex-col space-y-2">
+            <div
+              className="flex items-center space-x-6 cursor-pointer hover:text-indigo-400"
+              onClick={toggleSubmenu}
+            >
+              <FaClipboardCheck size={24} />
+              <span>{isOpen && "Driver Activity"}</span>
+            </div>
+            {isSubmenuOpen && (
+              <ul className="ml-10 space-y-4">
+                <li className="flex items-center space-x-2">
+                  <FaHistory size={20} className="text-gray-500" />
+                  <Link
+                    to="/dashboard/driver-activity"
+                    className="hover:text-indigo-400"
+                  >
+                    Driver History
+                  </Link>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <FaExclamationTriangle size={20} className="text-gray-500" />
+                  <Link
+                    to="/dashboard/driver-incidents"
+                    className="hover:text-indigo-400"
+                  >
+                    Driver Incidents
+                  </Link>
+                </li>
+              </ul>
+            )}
           </li>
+
           <li className="flex items-center space-x-6">
             <FaClipboardList size={24} />
             <Link to="/dashboard/orders" className="hover:text-indigo-400">

@@ -1,54 +1,54 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import useDrivingHistory from "@/hooks/useDrivingHistory";
+import useDriverIncidents from "@/hooks/useDriverIncidents";
 import { useEffect, useState } from "react";
 import { AiOutlineArrowLeft } from "react-icons/ai";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
-const DriverHistoryForm = () => {
-  const { drivingHistoryId } = useParams();
-  const { getById, createDrivingHistory, updateDrivingHistory } = useDrivingHistory();
-  const [historyData, setHistoryData] = useState({
-    drivingDate: "",
-    kmDriven: "",
+const DriverIncidentsForm = () => {
+  const { incidentId } = useParams();
+  const { getIncidentById, createIncident, updateIncident } = useDriverIncidents();
+  const [incidentData, setIncidentData] = useState({
+    incidentDescription: "",
+    createdAt: "",
+    incidentType: "",
     driverId: "",
-    carId: "",
   });
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (drivingHistoryId) {
-      fetchHistoryData();
+    if (incidentId) {
+      fetchIncidentData();
     }
-  }, [drivingHistoryId]);
+  }, [incidentId]);
 
-  const fetchHistoryData = async () => {
+  const fetchIncidentData = async () => {
     try {
-      const res = await getById(drivingHistoryId);
-      const formattedDate = res.createdAt.split("T")[0]; 
-      setHistoryData({
+      const res = await getIncidentById(incidentId);
+      const formattedDate = res.createdAt.split("T")[0];
+      setIncidentData({
         ...res,
-        drivingDate: formattedDate,
+        createdAt: formattedDate,
       });
     } catch (error) {
-      console.error("Error fetching driving history data:", error);
+      console.error("Error fetching incident data:", error);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (drivingHistoryId) {
-        await updateDrivingHistory(drivingHistoryId, historyData); 
+      if (incidentId) {
+        await updateIncident(incidentId, incidentData);
       } else {
-        await createDrivingHistory(historyData); 
+        await createIncident(incidentData);
       }
-      navigate("/dashboard/driver-activity");
-      toast.success("Driving history saved successfully!");
+      navigate("/dashboard/driver-incidents");
+      toast.success("Incident saved successfully!");
     } catch (error) {
-      console.error("Error saving driving history:", error);
+      console.error("Error saving incident:", error);
     }
   };
 
@@ -57,7 +57,7 @@ const DriverHistoryForm = () => {
       <div className="p-8 bg-white shadow-lg rounded-lg max-w-lg w-full">
         <div className="mb-6 flex items-center">
           <button
-            onClick={() => navigate("/dashboard/driver-activity")}
+            onClick={() => navigate("/dashboard/driver-incidents")}
             className="flex items-center text-gray-600 hover:text-indigo-600"
           >
             <AiOutlineArrowLeft className="mr-2" size={24} />
@@ -66,20 +66,37 @@ const DriverHistoryForm = () => {
         </div>
 
         <h2 className="text-3xl font-bold text-center text-indigo-600 mb-8">
-          {drivingHistoryId ? "Edit Driving History" : "Add New Driving History"}
+          {incidentId ? "Edit Incident" : "Add New Incident"}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <Label htmlFor="drivingDate" className="block font-semibold text-gray-700">
-              Driving Date
+            <Label htmlFor="incidentDescription" className="block font-semibold text-gray-700">
+              Incident Description
+            </Label>
+            <Input
+              type="text"
+              id="incidentDescription"
+              value={incidentData.incidentDescription}
+              onChange={(e) =>
+                setIncidentData({ ...incidentData, incidentDescription: e.target.value })
+              }
+              placeholder="Describe the incident"
+              required
+              className="w-full mt-1 p-2 border rounded focus:border-indigo-500 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="createdAt" className="block font-semibold text-gray-700">
+              Incident Date
             </Label>
             <Input
               type="date"
-              id="drivingDate"
-              value={historyData.drivingDate}
+              id="createdAt"
+              value={incidentData.createdAt}
               onChange={(e) =>
-                setHistoryData({ ...historyData, drivingDate: e.target.value })
+                setIncidentData({ ...incidentData, createdAt: e.target.value })
               }
               required
               className="w-full mt-1 p-2 border rounded focus:border-indigo-500 focus:outline-none"
@@ -87,17 +104,17 @@ const DriverHistoryForm = () => {
           </div>
 
           <div>
-            <Label htmlFor="kmDriven" className="block font-semibold text-gray-700">
-              Kilometers Driven
+            <Label htmlFor="incidentType" className="block font-semibold text-gray-700">
+              Incident Type
             </Label>
             <Input
-              type="number"
-              id="kmDriven"
-              value={historyData.kmDriven}
+              type="text"
+              id="incidentType"
+              value={incidentData.incidentType}
               onChange={(e) =>
-                setHistoryData({ ...historyData, kmDriven: e.target.value })
+                setIncidentData({ ...incidentData, incidentType: e.target.value })
               }
-              placeholder="Enter kilometers driven"
+              placeholder="Enter type of incident"
               required
               className="w-full mt-1 p-2 border rounded focus:border-indigo-500 focus:outline-none"
             />
@@ -110,28 +127,11 @@ const DriverHistoryForm = () => {
             <Input
               type="text"
               id="driverId"
-              value={historyData.driverId}
+              value={incidentData.driverId}
               onChange={(e) =>
-                setHistoryData({ ...historyData, driverId: e.target.value })
+                setIncidentData({ ...incidentData, driverId: e.target.value })
               }
               placeholder="Enter driver ID"
-              required
-              className="w-full mt-1 p-2 border rounded focus:border-indigo-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="carId" className="block font-semibold text-gray-700">
-              Car ID
-            </Label>
-            <Input
-              type="text"
-              id="carId"
-              value={historyData.carId}
-              onChange={(e) =>
-                setHistoryData({ ...historyData, carId: e.target.value })
-              }
-              placeholder="Enter car ID"
               required
               className="w-full mt-1 p-2 border rounded focus:border-indigo-500 focus:outline-none"
             />
@@ -141,7 +141,7 @@ const DriverHistoryForm = () => {
             type="submit"
             className="w-full py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors duration-300"
           >
-            {drivingHistoryId ? "Update Driving History" : "Add Driving History"}
+            {incidentId ? "Update Incident" : "Add Incident"}
           </Button>
         </form>
       </div>
@@ -149,4 +149,4 @@ const DriverHistoryForm = () => {
   );
 };
 
-export default DriverHistoryForm;
+export default DriverIncidentsForm;

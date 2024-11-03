@@ -3,9 +3,9 @@ import { useState } from "react";
 import api from "../utils/api";
 
 const useDriverIncidents = () => {
-  const INCIDENTS_URL = "/api/v1/driver-incidents"; 
+  const DRIVER_INCIDENTS_URL = "/api/v1/driving_incidents"; 
 
-  const [incidents, setIncidents] = useState([]);
+  const [driverIncidents, setDriverIncidents] = useState([]);
   const [pagination, setPagination] = useState({
     pageNumber: 0,
     pageSize: 10,
@@ -21,7 +21,7 @@ const useDriverIncidents = () => {
     setIsLoading(true);
     try {
       const res = await requestFunction();
-      setIncidents(res.data.items);
+      setDriverIncidents(res.data.items || []);
       setPagination({
         pageNumber: res.data.pageNumber,
         pageSize: res.data.pageSize,
@@ -41,7 +41,7 @@ const useDriverIncidents = () => {
   const getIncidents = async (page = 0, pageSize = 10) => {
     const token = getToken();
     return handleRequest(() =>
-      api.get(`${INCIDENTS_URL}?pageNumber=${page}&pageSize=${pageSize}`, {
+      api.get(`${DRIVER_INCIDENTS_URL}?pageNumber=${page}&pageSize=${pageSize}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -52,7 +52,7 @@ const useDriverIncidents = () => {
   const getIncidentById = async (id) => {
     const token = getToken();
     return handleRequest(() =>
-      api.get(`${INCIDENTS_URL}/${id}`, {
+      api.get(`${DRIVER_INCIDENTS_URL}/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -63,7 +63,7 @@ const useDriverIncidents = () => {
   const createIncident = async (incident) => {
     const token = getToken();
     return handleRequest(() =>
-      api.post(INCIDENTS_URL, incident, {
+      api.post(DRIVER_INCIDENTS_URL, incident, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -74,7 +74,7 @@ const useDriverIncidents = () => {
   const updateIncident = async (id, incident) => {
     const token = getToken();
     return handleRequest(() =>
-      api.put(`${INCIDENTS_URL}/${id}`, incident, {
+      api.put(`${DRIVER_INCIDENTS_URL}/${id}`, incident, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -85,7 +85,7 @@ const useDriverIncidents = () => {
   const deleteIncident = async (id) => {
     const token = getToken();
     return handleRequest(() =>
-      api.delete(`${INCIDENTS_URL}/${id}`, {
+      api.delete(`${DRIVER_INCIDENTS_URL}/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -94,7 +94,7 @@ const useDriverIncidents = () => {
   };
 
   return {
-    incidents,
+    driverIncidents,
     pagination,
     error,
     isLoading,
