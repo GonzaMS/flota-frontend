@@ -5,12 +5,13 @@ import {
   FaTimes,
   FaUser,
   FaClipboardCheck,
-  FaHistory, 
+  FaHistory,
   FaExclamationTriangle,
+  FaWrench,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import GenerateReportButton from "./GenerateReportButton";
+import GenerateReportButton from "./car/GenerateReportButton";
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const [isSubmenuOpen, setIsSubmenuOpen] = useState(false);
@@ -92,6 +93,12 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             <FaClipboardList size={24} />
             <Link to="/dashboard/orders" className="hover:text-indigo-400">
               {isOpen && "Travel Orders Management"}
+            </Link>
+          </li>
+          <li className="flex items-center space-x-6">
+            <FaWrench size={24} />
+            <Link to="/dashboard/maintenance" className="hover:text-indigo-400">
+              {isOpen && "Car Maintenance"}
             </Link>
           </li>
         </ul>

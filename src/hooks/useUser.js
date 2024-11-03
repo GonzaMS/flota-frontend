@@ -24,19 +24,21 @@ const useUser = () => {
   };
 
   const getLogin = async (params) => {
-    return handleRequest(() => api.post(`${USER_URL}/login`, params));
+    return handleRequest(() => api.post(`${USER_URL}login`, params));
   };
 
   const registerUser = async (params) => {
-    return handleRequest(() => api.post(`${USER_URL}/register`, params));
+    return handleRequest(() => api.post(`${USER_URL}register`, params));
   };
 
   const activateAccount = async (token) => {
-    return handleRequest(() => api.get(`${USER_URL}/activate?token=${token}`));
+    return handleRequest(() =>
+      api.get(`${USER_URL}activate-account?token=${token}`)
+    );
   };
 
   const forgotPassword = async (params) => {
-    return handleRequest(() => api.post(`${USER_URL}/forgot_password`, params));
+    return handleRequest(() => api.post(`${USER_URL}forgot_password`, params));
   };
 
   return {

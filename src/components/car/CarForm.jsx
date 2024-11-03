@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 
 const CarForm = () => {
   const { carId } = useParams();
-  const { getById, saveCar } = useCars();
+  const { getById, createCar } = useCars();
   const [carData, setCarData] = useState({
     brand: "",
     model: "",
@@ -28,7 +28,12 @@ const CarForm = () => {
   const fetchCarData = async () => {
     try {
       const res = await getById(carId);
-      setCarData(res);
+      setCarData({
+        ...res,
+        fabricationYear: res.fabricationYear
+          ? res.fabricationYear.slice(0, 4)
+          : "", // Only year
+      });
     } catch (error) {
       console.error("Error fetching car data:", error);
     }
@@ -37,7 +42,7 @@ const CarForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await saveCar(carData);
+      await createCar({ ...carData, fabricationYear: carData.fabricationYear });
       navigate("/dashboard/cars");
       toast.success("Car saved successfully!");
     } catch (error) {
@@ -78,7 +83,7 @@ const CarForm = () => {
               }
               placeholder="Enter car brand"
               required
-              className="w-full mt-1 p-2 border rounded focus:border-indigo-500 focus:outline-none"
+              className="w-full mt-1"
             />
           </div>
 
@@ -97,7 +102,7 @@ const CarForm = () => {
               }
               placeholder="Enter car model"
               required
-              className="w-full mt-1 p-2 border rounded focus:border-indigo-500 focus:outline-none"
+              className="w-full mt-1"
             />
           </div>
 
@@ -109,14 +114,17 @@ const CarForm = () => {
               Fabrication Year
             </Label>
             <Input
-              type="date"
+              type="number"
               id="fabricationYear"
               value={carData.fabricationYear}
               onChange={(e) =>
                 setCarData({ ...carData, fabricationYear: e.target.value })
               }
+              min="1900"
+              max={new Date().getFullYear()}
+              placeholder="Enter year (e.g., 2008)"
               required
-              className="w-full mt-1 p-2 border rounded focus:border-indigo-500 focus:outline-none"
+              className="w-full mt-1"
             />
           </div>
 
@@ -135,7 +143,7 @@ const CarForm = () => {
               }
               placeholder="Enter license plate"
               required
-              className="w-full mt-1 p-2 border rounded focus:border-indigo-500 focus:outline-none"
+              className="w-full mt-1"
             />
           </div>
 

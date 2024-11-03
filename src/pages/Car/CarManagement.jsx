@@ -1,30 +1,34 @@
+import Loader from "@/components/common/Loader";
+import Pagination from "@/components/common/Pagination";
 import { Button } from "@/components/ui/button";
 import useCars from "@/hooks/useCars";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const CarManagement = () => {
-  const [carsData, setCarsData] = useState(null);
+  const [carsData, setCarsData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { getCars, deleteCar } = useCars();
+  const [currentPage, setCurrentPage] = useState(0);
+  const { getCars, deleteCar, pagination } = useCars();
 
-  const fetchCars = async () => {
+  const fetchCars = useCallback(async () => {
+    setLoading(true);
     try {
-      const res = await getCars();
+      const res = await getCars(currentPage, pagination.pageSize);
       setCarsData(res.items);
-      setLoading(false);
     } catch (error) {
       console.error("Error fetching cars:", error);
-      setLoading(false);
       toast.error("Failed to load cars.");
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [getCars, currentPage, pagination.pageSize]);
 
   useEffect(() => {
     fetchCars();
-  }, []);
+  }, [currentPage, pagination.pageSize]);
 
   const handleDelete = (carId) => {
     toast.info(
@@ -33,63 +37,45 @@ const CarManagement = () => {
         <div className="flex justify-end">
           <Button
             className="mr-2 bg-red-500 text-white"
-            onClick={() => confirmDelete(carId)}
+            onClick={async () => {
+              await deleteCar(carId);
+              fetchCars();
+              toast.dismiss();
+              toast.success("Car deleted successfully!");
+            }}
           >
             Delete
           </Button>
-          <Button className="bg-gray-500 text-white" onClick={cancelDelete}>
+          <Button
+            className="bg-gray-500 text-white"
+            onClick={() => toast.dismiss()}
+          >
             Cancel
           </Button>
         </div>
       </>,
-      {
-        autoClose: false,
-        closeButton: false,
-      }
+      { autoClose: false, closeButton: false }
     );
   };
 
-  const confirmDelete = async (carId) => {
-    try {
-      await deleteCar(carId);
-      fetchCars();
-      toast.dismiss();
-      toast.success("Car deleted successfully!");
-    } catch (error) {
-      console.error("Error deleting car:", error);
-      toast.error("Error deleting car.");
-    }
-  };
-
-  const cancelDelete = () => {
-    toast.dismiss();
+  const handlePageClick = (event) => {
+    setCurrentPage(event.selected);
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="sk-chase">
-          <div className="sk-chase-dot"></div>
-          <div className="sk-chase-dot"></div>
-          <div className="sk-chase-dot"></div>
-          <div className="sk-chase-dot"></div>
-          <div className="sk-chase-dot"></div>
-          <div className="sk-chase-dot"></div>
-        </div>
-      </div>
-    );
+    return <Loader />;
   }
 
-  if (!carsData || carsData.length === 0) {
+  if (!carsData.length) {
     return (
       <p className="text-center text-lg font-semibold">No cars available.</p>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen p-6 bg-gray-100">
       <div className="mb-6 flex justify-between items-center pt-20">
-        <h2 className="text-3xl font-bold text-gray-800">Car Management</h2>
+        <h2 className="text-3xl font-bold text-indigo-700">Car Management</h2>
         <Link to="/dashboard/cars/new">
           <Button className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded shadow">
             Add New Car
@@ -99,40 +85,31 @@ const CarManagement = () => {
 
       <div className="overflow-x-auto bg-white shadow-md sm:rounded-lg p-4">
         <table className="min-w-full bg-white">
-          <thead className="bg-gray-100">
+          <thead className="bg-indigo-700 text-white">
             <tr>
-              <th className="px-6 py-3 text-left text-sm font-bold text-gray-600 uppercase tracking-wider">
-                Car ID
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-bold text-gray-600 uppercase tracking-wider">
-                Brand
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-bold text-gray-600 uppercase tracking-wider">
-                Model
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-bold text-gray-600 uppercase tracking-wider">
-                Year
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-bold text-gray-600 uppercase tracking-wider">
-                License Plate
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-bold text-gray-600 uppercase tracking-wider">
-                State
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-bold text-gray-600 uppercase tracking-wider">
-                Actions
-              </th>
+              {[
+                "Brand",
+                "Model",
+                "Year",
+                "License Plate",
+                "State",
+                "Actions",
+              ].map((header) => (
+                <th
+                  key={header}
+                  className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider"
+                >
+                  {header}
+                </th>
+              ))}
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-200">
             {carsData.map((car, index) => (
               <tr
                 key={car.id}
                 className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
               >
-                <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
-                  {car.id}
-                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
                   {car.brand}
                 </td>
@@ -168,6 +145,13 @@ const CarManagement = () => {
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div className="flex justify-center mt-8">
+        <Pagination
+          pageCount={pagination.totalPages}
+          onPageChange={handlePageClick}
+        />
       </div>
     </div>
   );

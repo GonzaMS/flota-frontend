@@ -21,7 +21,7 @@ const ForgotPassword = () => {
       const res = await forgotPassword(forgotPasswordParams);
       if (res) {
         toast.success(`Mail for change password sended to ${email}`);
-        navigate("/login");
+        navigate("/");
       }
     } catch (err) {
       toast.error("Error sending email");

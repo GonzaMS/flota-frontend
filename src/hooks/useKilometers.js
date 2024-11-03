@@ -92,18 +92,35 @@ const useKilometers = () => {
     pageSize = 10
   ) => {
     const token = getToken();
+
     return handleRequest(() =>
-      api.get(
-        `${KILOMETERS_URL}/filter?carId=${carId}&pageNumber=${page}&pageSize=${pageSize}`,
-        startDate,
-        endDate,
+      api.post(
+        `${KILOMETERS_URL}/car/${carId}/date?pageNumber=${page}&pageSize=${pageSize}`,
+        { startDate, endDate },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      )
+    );
+  };
+
+  const getByCarId = async (carId, page = 0, pageSize = 10) => {
+    const token = getToken();
+    return handleRequest(async () => {
+      const res = await api.get(
+        `${KILOMETERS_URL}/car/${carId}?pageNumber=${page}&pageSize=${pageSize}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
-      )
-    );
+      );
+      const lastKilometer = res.data.items[res.data.items.length - 1];
+      return lastKilometer ? [lastKilometer] : []; // Return last kilometer added in an array
+    });
   };
 
   return {
@@ -116,6 +133,7 @@ const useKilometers = () => {
     updateKilometer,
     deleteKilometer,
     getByCarIdAndDate,
+    getByCarId,
   };
 };
 

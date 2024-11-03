@@ -2,17 +2,18 @@ import { Error } from "@/components/Error";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/context/AuthContext";
+import useUser from "@/hooks/useUser";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import useUser from "../hooks/useUser";
 
 const Login = () => {
   const { getLogin, isLoading } = useUser();
+  const { login } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login } = useAuth();
   const [localError, setLocalError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
 
