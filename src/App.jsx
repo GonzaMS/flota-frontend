@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import CarForm from "./components/car/CarForm";
+import CarForm from "./components/car/car_management/CarForm";
 import MaintenanceForm from "./components/car/MaintenanceForm";
 import AuthLayout from "./layout/AuthLayout";
 import DashboardLayout from "./layout/DashboardLayout";
