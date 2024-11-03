@@ -47,6 +47,43 @@ const useMaintenances = () => {
     );
   };
 
+  const getById = async (id) => {
+    const token = getToken();
+    return handleRequest(() =>
+      api.get(`${MAINTENANCES_URL}/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+    );
+  };
+
+  const createMaintenance = async (maintenance) => {
+    const token = getToken();
+    return handleRequest(() =>
+      api.post(MAINTENANCES_URL, maintenance, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+    );
+  };
+
+  const updateMaintenance = async (maintenance) => {
+    const token = getToken();
+    return handleRequest(() =>
+      api.put(`${MAINTENANCES_URL}/${maintenance.id}`, maintenance, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+    );
+  };
+
+  const deleteMaintenance = async (id) => {
+    const token = getToken();
+    return handleRequest(() =>
+      api.delete(`${MAINTENANCES_URL}/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+    );
+  };
+
+  // Filters
   const getByCarId = async (carId, page = 0, pageSize = 10) => {
     const token = getToken();
     return handleRequest(() =>
@@ -92,42 +129,6 @@ const useMaintenances = () => {
           },
         }
       )
-    );
-  };
-
-  const getById = async (id) => {
-    const token = getToken();
-    return handleRequest(() =>
-      api.get(`${MAINTENANCES_URL}/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-    );
-  };
-
-  const createMaintenance = async (maintenance) => {
-    const token = getToken();
-    return handleRequest(() =>
-      api.post(MAINTENANCES_URL, maintenance, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-    );
-  };
-
-  const updateMaintenance = async (maintenance) => {
-    const token = getToken();
-    return handleRequest(() =>
-      api.put(`${MAINTENANCES_URL}/${maintenance.id}`, maintenance, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-    );
-  };
-
-  const deleteMaintenance = async (id) => {
-    const token = getToken();
-    return handleRequest(() =>
-      api.delete(`${MAINTENANCES_URL}/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
     );
   };
 

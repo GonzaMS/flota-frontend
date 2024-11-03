@@ -29,6 +29,7 @@ const useKilometers = () => {
         totalPages: res.data.totalPages,
         isLast: res.data.isLast,
       });
+
       return res.data;
     } catch (err) {
       setError(err.response?.data || "Unknown Error");
@@ -109,18 +110,16 @@ const useKilometers = () => {
 
   const getByCarId = async (carId, page = 0, pageSize = 10) => {
     const token = getToken();
-    return handleRequest(async () => {
-      const res = await api.get(
+    return handleRequest(() =>
+      api.get(
         `${KILOMETERS_URL}/car/${carId}?pageNumber=${page}&pageSize=${pageSize}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
-      );
-      const lastKilometer = res.data.items[res.data.items.length - 1];
-      return lastKilometer ? [lastKilometer] : []; // Return last kilometer added in an array
-    });
+      )
+    );
   };
 
   return {

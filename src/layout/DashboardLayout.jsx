@@ -1,5 +1,5 @@
 import DashboardHeader from "@/components/DashboardHeader";
-import Sidebar from "@/components/Sidebar";
+import SidebarComponent from "@/components/Sidebar";
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 
@@ -8,7 +8,7 @@ const DashboardLayout = () => {
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
-      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+      <SidebarComponent isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
       <div
         className={`flex-1 ${
