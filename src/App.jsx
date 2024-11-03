@@ -7,7 +7,7 @@ import DriverIncidentsForm from './components/DriverIncidentsForm';
 import DriverManagement from './pages/DriverManagement';
 import DriverHistoryManagement from './pages/DriverHistoryManagement';
 import DriverIncidentsManagement from './pages/DriverIncidentsManagement'; 
-import CarForm from "./components/car/CarForm";
+import CarForm from "./components/car/car_management/CarForm";
 import MaintenanceForm from "./components/car/MaintenanceForm";
 import AuthLayout from "./layout/AuthLayout";
 import DashboardLayout from "./layout/DashboardLayout";

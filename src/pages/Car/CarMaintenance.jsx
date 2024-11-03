@@ -1,12 +1,14 @@
+import MaintenanceTableRow from "@/components/car/car_maintenance/MaintenanceTableRow";
 import Loader from "@/components/common/Loader";
 import Pagination from "@/components/common/Pagination";
+import Table from "@/components/common/Table";
 import { Button } from "@/components/ui/button";
 import useCars from "@/hooks/useCars";
 import useMaintenances from "@/hooks/useMaintenances";
 import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaPlus } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -16,12 +18,14 @@ const CarMaintenance = () => {
     getMaintenances,
     getByCarIdAndDate,
     deleteMaintenance,
+    getByCarId,
+    getByDate,
     isLoading,
     error,
     pagination,
   } = useMaintenances();
-
   const { getCars } = useCars();
+
   const [carNames, setCarNames] = useState({});
   const [cars, setCars] = useState([]);
   const [maintenances, setMaintenances] = useState([]);
@@ -46,27 +50,61 @@ const CarMaintenance = () => {
   };
 
   const fetchMaintenances = async (page) => {
-    if (selectedCarId && dateRange[0] && dateRange[1]) {
-      const formattedStartDate = dateRange[0].toISOString().split("T")[0];
-      const formattedEndDate = dateRange[1].toISOString().split("T")[0];
+    let response;
+    const hasDateRange = dateRange[0] && dateRange[1];
+    const formattedStartDate = hasDateRange
+      ? dateRange[0].toISOString().split("T")[0]
+      : null;
+    const formattedEndDate = hasDateRange
+      ? dateRange[1].toISOString().split("T")[0]
+      : null;
 
-      const response = await getByCarIdAndDate(
-        selectedCarId,
-        formattedStartDate,
-        formattedEndDate,
-        page
-      );
-
-      if (!response) {
-        const carName = carNames[selectedCarId] || "selected car";
-        toast.warn(`No maintenances found for ${carName}.`);
-        setMaintenances([]);
+    try {
+      if (selectedCarId && hasDateRange) {
+        response = await getByCarIdAndDate(
+          selectedCarId,
+          formattedStartDate,
+          formattedEndDate,
+          page
+        );
+      } else if (selectedCarId) {
+        response = await getByCarId(selectedCarId, page);
+      } else if (hasDateRange) {
+        response = await getByDate(formattedStartDate, formattedEndDate, page);
       } else {
-        setMaintenances(response.items);
+        response = await getMaintenances(page);
       }
-    } else {
-      const allMaintenances = await getMaintenances(page);
-      setMaintenances(allMaintenances.items);
+
+      if (response && response.items.length > 0) {
+        setMaintenances(response.items);
+      } else {
+        const filterDescription = selectedCarId
+          ? `${
+              carNames[selectedCarId] || "selected car"
+            } in the selected date range`
+          : "the selected date range";
+        toast.warn(`No maintenances found for ${filterDescription}.`);
+        setMaintenances([]);
+      }
+    } catch (error) {
+      console.error("Error fetching maintenances:", error);
+      toast.error("Failed to load maintenances.");
+      setMaintenances([]);
+    }
+  };
+
+  const cancelDelete = () => {
+    toast.dismiss();
+  };
+
+  const confirmDelete = async (maintenanceId) => {
+    try {
+      await deleteMaintenance(maintenanceId);
+      fetchMaintenances(currentPage);
+      toast.success("Maintenance record deleted successfully.");
+    } catch (error) {
+      console.error("Error deleting maintenance:", error);
+      toast.error("Failed to delete maintenance record.");
     }
   };
 
@@ -105,36 +143,26 @@ const CarMaintenance = () => {
     );
   };
 
-  const confirmDelete = async (maintenanceId) => {
-    try {
-      await deleteMaintenance(maintenanceId);
-      fetchMaintenances(currentPage);
-      toast.dismiss();
-      toast.success("Maintenance record deleted successfully!");
-    } catch (error) {
-      console.error("Error deleting maintenance:", error);
-      toast.error("Error deleting maintenance.");
-    }
-  };
+  const maintenanceHeaders = [
+    "Car Name",
+    "Date Created",
+    "Description",
+    "Cost",
+    "Type",
+  ];
 
-  const cancelDelete = () => {
-    toast.dismiss();
-  };
-
-  if (isLoading) {
-    return <Loader />;
-  }
-
-  return (
+  return isLoading ? (
+    <Loader />
+  ) : (
     <div className="min-h-screen p-6 bg-gray-100">
       <div className="mb-6 flex justify-between items-center pt-20">
         <h2 className="text-3xl font-bold text-indigo-700">Car Maintenance</h2>
-        <Button
-          className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded shadow"
-          onClick={() => navigate("/dashboard/maintenance/new")}
-        >
-          Add New Maintenance
-        </Button>
+        <Link to="/dashboard/maintenance/new">
+          <Button className="bg-indigo-500 text-white py-1.5 px-5 rounded-md shadow-md hover:bg-indigo-600 transition duration-200 ease-in-out text-sm flex items-center space-x-2">
+            <FaPlus className="inline" />
+            <span>Add New Maintenance</span>
+          </Button>
+        </Link>
       </div>
 
       <div className="mb-4 flex space-x-4">
@@ -158,7 +186,7 @@ const CarMaintenance = () => {
           onChange={(update) => setDateRange(update)}
           isClearable
           placeholderText="Select Date Range"
-          className="p-2 border border-gray-300 rounded"
+          className="p-2 border border-gray-300 rounded w-60"
         />
 
         <Button
@@ -174,69 +202,12 @@ const CarMaintenance = () => {
           Car maintenance records not found.
         </p>
       ) : (
-        <div className="overflow-x-auto bg-white shadow-md sm:rounded-lg p-4">
-          <table className="min-w-full bg-white">
-            <thead className="bg-indigo-700 text-white">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
-                  Car Name
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
-                  Date Created
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
-                  Description
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
-                  Cost
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
-                  Type
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {maintenances.map((maintenance) => (
-                <tr key={maintenance.id} className="bg-white">
-                  <td className="px-6 py-4 text-base text-gray-800">
-                    {carNames[maintenance.carId] || "Unknown Car"}
-                  </td>
-                  <td className="px-6 py-4 text-base text-gray-800">
-                    {formatDate(maintenance.createdAt)}
-                  </td>
-                  <td className="px-6 py-4 text-base text-gray-800">
-                    {maintenance.description}
-                  </td>
-                  <td className="px-6 py-4 text-base text-gray-800">
-                    ${maintenance.cost.toFixed(2)}
-                  </td>
-                  <td className="px-6 py-4 text-base text-gray-800">
-                    {maintenance.type}
-                  </td>
-                  <td className="px-6 py-4 text-base font-medium flex space-x-3">
-                    <Link
-                      to={`/dashboard/maintenance/${maintenance.id}/edit`}
-                      className="flex items-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md shadow"
-                    >
-                      <FaEdit className="mr-2" />
-                      Edit
-                    </Link>
-                    <Button
-                      className="flex items-center bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md shadow"
-                      onClick={() => handleDelete(maintenance.id)}
-                    >
-                      <FaTrash className="mr-2" />
-                      Delete
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Table
+          headers={maintenanceHeaders}
+          data={maintenances}
+          RowComponent={MaintenanceTableRow}
+          rowProps={{ carNames, onDelete: handleDelete }}
+        />
       )}
 
       {maintenances.length > 0 && (
