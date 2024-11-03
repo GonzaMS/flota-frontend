@@ -5,53 +5,41 @@ import api from "../utils/api";
 const useReports = () => {
   const REPORTS_URL = "/api/v1/car-reports";
 
-  const [cars, setCars] = useState([]);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Función genérica de solicitud
   const handleRequest = async (requestFunction) => {
     setError(null);
     setIsLoading(true);
     try {
       const res = await requestFunction();
-      setCars(res.data.items);
-      return res.data;
+      return res.data; // Devuelve el resultado de la solicitud
     } catch (err) {
       setError(err.response?.data || "Unknown Error");
-      return null;
+      throw err; // Lanza el error para que el componente lo maneje
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Función específica para obtener el reporte PDF
   const getReports = async () => {
     const token = getToken();
-    return handleRequest(async () => {
-      const res = await api.get(`${REPORTS_URL}/export`, {
+    return handleRequest(() =>
+      api.get(`${REPORTS_URL}/export`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        responseType: "blob",
-      });
-      const url = window.URL.createObjectURL(new Blob([res.data]));
-      console.log(url);
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", "reporte_vehiculos.pdf");
-      document.body.appendChild(link);
-
-      console.log(res.data);
-      link.click();
-      link.parentNode.removeChild(link);
-      return res.data;
-    });
+        responseType: "blob", // Asegura que la respuesta sea un blob para manejar archivos PDF
+      })
+    );
   };
 
   return {
-    cars,
-    error,
-    isLoading,
     getReports,
+    isLoading,
+    error,
   };
 };
 
