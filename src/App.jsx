@@ -3,15 +3,17 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import CarForm from "./components/car/car_management/CarForm";
 import MaintenanceForm from "./components/car/MaintenanceForm";
+import Error404 from "./components/common/Error404";
+import Error500 from "./components/common/Error500";
 import AuthLayout from "./layout/AuthLayout";
 import DashboardLayout from "./layout/DashboardLayout";
-import ConfirmAccount from "./pages/authentication/ConfirmAccount";
-import ForgotPassword from "./pages/authentication/ForgotPassword";
-import Login from "./pages/authentication/Login";
-import Register from "./pages/authentication/Register";
 import CarMaintenance from "./pages/car/CarMaintenance";
 import CarManagement from "./pages/car/CarManagement";
 import Dashboard from "./pages/Dashboard";
+import ConfirmAccount from "./pages/login/ConfirmAccount";
+import ForgotPassword from "./pages/login/ForgotPassword";
+import Login from "./pages/login/Login";
+import Register from "./pages/login/Register";
 import ProtectedRoute from "./routes-app/ProtectedRoutes";
 
 function App() {
@@ -50,6 +52,10 @@ function App() {
               />
             </Route>
           </Route>
+
+          {/* Errors */}
+          <Route path="/error-500" element={<Error500 />} />
+          <Route path="*" element={<Error404 />} />
         </Routes>
       </BrowserRouter>
 
