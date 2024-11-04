@@ -4,13 +4,23 @@ import {
   FaClipboardList,
   FaTimes,
   FaUser,
+  FaClipboardCheck,
+  FaHistory,
+  FaExclamationTriangle,
   FaWrench,
 } from "react-icons/fa";
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import GenerateReportButton from "./car/GenerateReportButton";
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const location = useLocation();
+  const [isSubmenuOpen, setIsSubmenuOpen] = useState(false);
+
+  const toggleSubmenu = () => {
+    setIsSubmenuOpen(!isSubmenuOpen);
+  };
+
   const menuItems = [
     { name: "Car Management", icon: FaCar, path: "/dashboard/cars" },
     { name: "Driver Management", icon: FaUser, path: "/dashboard/drivers" },
@@ -47,16 +57,14 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       )}
 
       {/* Navigation */}
-      <nav className="mt-10 flex-grow">
+      <nav className={`mt-10 ${!isOpen && "hidden md:block"}`}>
         <ul className="space-y-4 text-sm">
           {menuItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <li
                 key={item.name}
-                className={`flex items-center ${
-                  isActive ? "bg-indigo-500 rounded-lg" : ""
-                }`}
+                className={`flex items-center ${isActive ? "bg-indigo-500 rounded-lg" : ""}`}
               >
                 <Link
                   to={item.path}
@@ -64,13 +72,44 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                     isActive ? "text-white" : "text-gray-300"
                   }`}
                 >
-                  {/* Icon inheriting text color */}
                   <item.icon size={24} />
                   {isOpen && <span className="text-base">{item.name}</span>}
                 </Link>
               </li>
             );
           })}
+
+          <li className="flex flex-col space-y-2">
+            <div
+              className="flex items-center space-x-6 cursor-pointer hover:text-indigo-400"
+              onClick={toggleSubmenu}
+            >
+              <FaClipboardCheck size={24} />
+              <span>{isOpen && "Driver Activity"}</span>
+            </div>
+            {isSubmenuOpen && (
+              <ul className="ml-10 space-y-4">
+                <li className="flex items-center space-x-2">
+                  <FaHistory size={20} className="text-gray-500" />
+                  <Link
+                    to="/dashboard/driver-activity"
+                    className="hover:text-indigo-400"
+                  >
+                    Driver History
+                  </Link>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <FaExclamationTriangle size={20} className="text-gray-500" />
+                  <Link
+                    to="/dashboard/driver-incidents"
+                    className="hover:text-indigo-400"
+                  >
+                    Driver Incidents
+                  </Link>
+                </li>
+              </ul>
+            )}
+          </li>
         </ul>
       </nav>
 

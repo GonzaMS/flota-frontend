@@ -1,6 +1,12 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import DriverForm from './components/DriverForm';
+import DrivingHistoryForm from './components/DrivingHistoryForm';
+import DriverIncidentsForm from './components/DriverIncidentsForm';
+import DriverManagement from './pages/DriverManagement';
+import DriverHistoryManagement from './pages/DriverHistoryManagement';
+import DriverIncidentsManagement from './pages/DriverIncidentsManagement'; 
 import CarForm from "./components/car/car_management/CarForm";
 import MaintenanceForm from "./components/car/MaintenanceForm";
 import Error404 from "./components/common/Error404";
@@ -38,6 +44,18 @@ function App() {
               <Route path="/dashboard/cars/:carId/edit" element={<CarForm />} />
 
               {/* Maintenance routes */}
+              <Route path="/dashboard/drivers" element={<DriverManagement />} />
+              <Route path="/dashboard/drivers/new" element={<DriverForm />} />
+              <Route path="/dashboard/drivers/:driverId/edit" element={<DriverForm />} />
+              <Route path="/dashboard/driver-activity" element={<DriverHistoryManagement />} />
+              <Route path="/dashboard/driver-activity/new" element={<DrivingHistoryForm />} />
+              <Route path="/dashboard/driver-activity/:drivingHistoryId/edit" element={<DrivingHistoryForm />} />
+              <Route path="/dashboard/driver-incidents" element={<DriverIncidentsManagement />} /> 
+              <Route path="/dashboard/driver-incidents/new" element={<DriverIncidentsForm />} /> 
+              <Route path="/dashboard/driver-incidents/:incidentId/edit" element={<DriverIncidentsForm />} /> 
+              
+
+              {/* Maintenance routes */}
               <Route
                 path="/dashboard/maintenance"
                 element={<CarMaintenance />}
@@ -51,6 +69,7 @@ function App() {
                 element={<MaintenanceForm />}
               />
             </Route>
+            
           </Route>
 
           {/* Errors */}
