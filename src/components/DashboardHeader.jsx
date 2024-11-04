@@ -8,7 +8,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/context/AuthContext";
-import { getUserFromLocalStorage,formatRole,formatUsername} from "@/utils/userUtils";
+import {
+  formatRole,
+  formatUsername,
+  getUserFromLocalStorage,
+} from "@/utils/userUtils";
 import { useEffect, useState } from "react";
 import { FaSignOutAlt, FaUser } from "react-icons/fa";
 
@@ -64,6 +68,7 @@ const DashboardHeader = ({ isOpen }) => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+        {/* Test */}
       </div>
     </header>
   );
