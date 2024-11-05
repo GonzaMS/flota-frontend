@@ -2,6 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import useDrivingHistory from "@/hooks/useDrivingHistory";
+import useAssignedOrders from "@/hooks/useAssignedOrders";
+import useDrivers from "@/hooks/useDrivers"; 
+import useCars from "@/hooks/useCars"; 
 import { useEffect, useState } from "react";
 import { AiOutlineArrowLeft } from "react-icons/ai";
 import { useNavigate, useParams } from "react-router-dom";
@@ -10,18 +13,27 @@ import { toast } from "react-toastify";
 const DriverHistoryForm = () => {
   const { drivingHistoryId } = useParams();
   const { getById, createDrivingHistory, updateDrivingHistory } = useDrivingHistory();
+  const { getAssignedOrders, assignedOrders } = useAssignedOrders();
+  const { getDrivers, drivers } = useDrivers();
+  const { getCars, cars } = useCars(); 
   const [historyData, setHistoryData] = useState({
-    drivingDate: "",
+    createdAt: "", 
     kmDriven: "",
-    driverId: "",
-    carId: "",
+    assignedOrderId: "",
   });
+
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (drivingHistoryId) {
-      fetchHistoryData();
-    }
+    const loadData = async () => {
+      await fetchAssignedOrdersData(); 
+      await fetchDriversData(); 
+      await fetchCarsData(); 
+      if (drivingHistoryId) {
+        await fetchHistoryData();
+      }
+    };
+    loadData();
   }, [drivingHistoryId]);
 
   const fetchHistoryData = async () => {
@@ -30,25 +42,56 @@ const DriverHistoryForm = () => {
       const formattedDate = res.createdAt.split("T")[0]; 
       setHistoryData({
         ...res,
-        drivingDate: formattedDate,
+        createdAt: formattedDate, 
       });
     } catch (error) {
       console.error("Error fetching driving history data:", error);
     }
   };
 
+  const fetchAssignedOrdersData = async () => {
+    try {
+      await getAssignedOrders(); 
+    } catch (error) {
+      console.error("Error fetching assigned orders:", error);
+    }
+  };
+
+  const fetchDriversData = async () => {
+    try {
+      await getDrivers(); 
+    } catch (error) {
+      console.error("Error fetching drivers:", error);
+    }
+  };
+
+  const fetchCarsData = async () => {
+    try {
+      await getCars(); 
+    } catch (error) {
+      console.error("Error fetching cars:", error);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!historyData.drivingDate) {
+      toast.error("Driving date is required.");
+      return;
+    }
+
     try {
       if (drivingHistoryId) {
-        await updateDrivingHistory(drivingHistoryId, historyData); 
+        await updateDrivingHistory(drivingHistoryId, historyData);
       } else {
-        await createDrivingHistory(historyData); 
+        await createDrivingHistory(historyData);
       }
-      navigate("/dashboard/driver-activity");
+      navigate("/dashboard/driver-history");
       toast.success("Driving history saved successfully!");
     } catch (error) {
       console.error("Error saving driving history:", error);
+      toast.error("Error saving driving history. Please try again.");
     }
   };
 
@@ -57,11 +100,11 @@ const DriverHistoryForm = () => {
       <div className="p-8 bg-white shadow-lg rounded-lg max-w-lg w-full">
         <div className="mb-6 flex items-center">
           <button
-            onClick={() => navigate("/dashboard/driver-activity")}
+            onClick={() => navigate("/dashboard/driver-history")}
             className="flex items-center text-gray-600 hover:text-indigo-600"
           >
             <AiOutlineArrowLeft className="mr-2" size={24} />
-            <span className="font-semibold">Back to Driver Activity</span>
+            <span className="font-semibold">Back to Driver history</span>
           </button>
         </div>
 
@@ -71,15 +114,15 @@ const DriverHistoryForm = () => {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <Label htmlFor="drivingDate" className="block font-semibold text-gray-700">
+            <Label htmlFor="createdAt" className="block font-semibold text-gray-700">
               Driving Date
             </Label>
             <Input
               type="date"
-              id="drivingDate"
-              value={historyData.drivingDate}
+              id="createdAt"
+              value={historyData.createdAt}
               onChange={(e) =>
-                setHistoryData({ ...historyData, drivingDate: e.target.value })
+                setHistoryData({ ...historyData, createdAt: e.target.value })
               }
               required
               className="w-full mt-1 p-2 border rounded focus:border-indigo-500 focus:outline-none"
@@ -104,37 +147,29 @@ const DriverHistoryForm = () => {
           </div>
 
           <div>
-            <Label htmlFor="driverId" className="block font-semibold text-gray-700">
-              Driver ID
+            <Label htmlFor="assignedOrderId" className="block font-semibold text-gray-700">
+              Assigned Order
             </Label>
-            <Input
-              type="text"
-              id="driverId"
-              value={historyData.driverId}
+            <select
+              id="assignedOrderId"
+              value={historyData.assignedOrderId}
               onChange={(e) =>
-                setHistoryData({ ...historyData, driverId: e.target.value })
+                setHistoryData({ ...historyData, assignedOrderId: e.target.value })
               }
-              placeholder="Enter driver ID"
               required
               className="w-full mt-1 p-2 border rounded focus:border-indigo-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="carId" className="block font-semibold text-gray-700">
-              Car ID
-            </Label>
-            <Input
-              type="text"
-              id="carId"
-              value={historyData.carId}
-              onChange={(e) =>
-                setHistoryData({ ...historyData, carId: e.target.value })
-              }
-              placeholder="Enter car ID"
-              required
-              className="w-full mt-1 p-2 border rounded focus:border-indigo-500 focus:outline-none"
-            />
+            >
+              <option value="">Select a Driver</option>
+              {assignedOrders.map((order) => {
+                const driver = drivers.find(d => d.driverId === order.driverId);
+                const car = cars.find(c => c.id === order.carId);
+                return (
+                  <option key={order.assignedOrderId} value={order.assignedOrderId}>
+                    Driver: {driver ? driver.driverName : "Unknown"} - Car: {car ? car.brand : "Unknown"}
+                  </option>
+                );
+              })}
+            </select>
           </div>
 
           <Button

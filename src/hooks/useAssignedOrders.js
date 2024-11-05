@@ -1,11 +1,11 @@
-import { getToken } from "@/utils/getToken";
 import { useState } from "react";
+import { getToken } from "@/utils/getToken";
 import api from "../utils/api";
 
-const useDrivers = () => {
-  const DRIVERS_URL = "/api/v1/drivers"; 
+const useAssignedOrders = () => {
+  const ASSIGNED_ORDER_URL = "/api/v1/assigned-orders";
 
-  const [drivers, setDrivers] = useState([]);
+  const [assignedOrders, setAssignedOrders] = useState([]);
   const [pagination, setPagination] = useState({
     pageNumber: 0,
     pageSize: 10,
@@ -21,7 +21,7 @@ const useDrivers = () => {
     setIsLoading(true);
     try {
       const res = await requestFunction();
-      setDrivers(res.data.items);
+      setAssignedOrders(res.data.items);
       setPagination({
         pageNumber: res.data.pageNumber,
         pageSize: res.data.pageSize,
@@ -38,10 +38,10 @@ const useDrivers = () => {
     }
   };
 
-  const getDrivers = async (page = 0, pageSize = 10) => {
+  const getAssignedOrders = async (page = 0, pageSize = 10) => {
     const token = getToken();
     return handleRequest(() =>
-      api.get(`${DRIVERS_URL}?pageNumber=${page}&pageSize=${pageSize}`, {
+      api.get(`${ASSIGNED_ORDER_URL}?pageNumber=${page}&pageSize=${pageSize}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -49,10 +49,10 @@ const useDrivers = () => {
     );
   };
 
-  const getByIdDriver = async (id) => {
+  const getById = async (id) => {
     const token = getToken();
     return handleRequest(() =>
-      api.get(`${DRIVERS_URL}/${id}`, {
+      api.get(`${ASSIGNED_ORDER_URL}/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -60,10 +60,10 @@ const useDrivers = () => {
     );
   };
 
-  const createDriver = async (driver) => {
+  const saveAssignedOrder = async (assignedOrder) => {
     const token = getToken();
     return handleRequest(() =>
-      api.post(DRIVERS_URL, driver, {
+      api.post(ASSIGNED_ORDER_URL, assignedOrder, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -71,10 +71,10 @@ const useDrivers = () => {
     );
   };
 
-  const updateDriver = async (id, driver) => {
+  const updateAssignedOrder = async (id, assignedOrder) => {
     const token = getToken();
     return handleRequest(() =>
-      api.put(`${DRIVERS_URL}/${id}`, driver, {
+      api.put(`${ASSIGNED_ORDER_URL}/${id}`, assignedOrder, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -82,10 +82,10 @@ const useDrivers = () => {
     );
   };
 
-  const deleteDriver = async (id) => {
+  const deleteAssignedOrder = async (id) => {
     const token = getToken();
     return handleRequest(() =>
-      api.delete(`${DRIVERS_URL}/${id}`, {
+      api.delete(`${ASSIGNED_ORDER_URL}/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -94,16 +94,16 @@ const useDrivers = () => {
   };
 
   return {
-    drivers,
+    assignedOrders,
     pagination,
     error,
     isLoading,
-    getDrivers,
-    getByIdDriver,
-    createDriver,
-    updateDriver,
-    deleteDriver,
+    getAssignedOrders,
+    getById,
+    saveAssignedOrder,
+    updateAssignedOrder,
+    deleteAssignedOrder,
   };
 };
 
-export default useDrivers;
+export default useAssignedOrders;

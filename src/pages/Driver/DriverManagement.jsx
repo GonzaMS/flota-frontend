@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import Pagination from "@/components/common/Pagination";
 
 const DriverManagement = () => {
-  const [driversData, setDriversData] = useState([]);
+  const [driversData, setDriversData] = useState({ items: [] });
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const { getDrivers, deleteDriver, pagination } = useDrivers();
@@ -15,12 +15,12 @@ const DriverManagement = () => {
   const fetchDrivers = async () => {
     try {
       const res = await getDrivers(currentPage, pagination.pageSize);
-      setDriversData(res.items);
-      setLoading(false);
+      setDriversData(res);  // Actualizamos el estado con el objeto completo de la respuesta
     } catch (error) {
       console.error("Error fetching drivers:", error);
-      setLoading(false);
       toast.error("Failed to load drivers.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -76,12 +76,6 @@ const DriverManagement = () => {
     );
   }
 
-  if (!driversData.length) {
-    return (
-      <p className="text-center text-lg font-semibold">No drivers available.</p>
-    );
-  }
-
   return (
     <div className="h-screen flex flex-col bg-gray-100">
       <div className="mb-6 flex justify-between items-center pt-20 px-6">
@@ -93,75 +87,50 @@ const DriverManagement = () => {
         </Link>
       </div>
 
-      {/* Contenedor de tabla con scroll y altura ajustada */}
       <div className="flex-grow overflow-y-auto bg-white shadow-md sm:rounded-lg p-4 mx-6 min-h-0">
         <table className="min-w-full bg-white">
           <thead className="bg-indigo-700 text-white">
             <tr>
-              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
-                Name
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
-                License Number
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
-                State
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
-                License Expiration
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
-                Actions
-              </th>
+              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">Name</th>
+              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">License Number</th>
+              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">State</th>
+              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">License Expiration</th>
+              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {driversData.map((driver, index) => (
-              <tr
-                key={driver.driverId}
-                className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
-              >
-                <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
-                  {driver.driverName}{" "}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
-                  {driver.driverLicense}{" "}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
-                  {driver.driverState}{" "}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
-                  {new Date(
-                    driver.driverLicenseExpirationDate
-                  ).toLocaleDateString()}{" "}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-base font-medium flex space-x-3">
-                  <Link
-                    to={`/dashboard/drivers/${driver.driverId}/edit`}
-                    className="flex items-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md shadow"
-                  >
-                    <FaEdit className="mr-2" />
-                    Edit
-                  </Link>
-                  <Button
-                    className="flex items-center bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md shadow"
-                    onClick={() => handleDelete(driver.driverId)}
-                  >
-                    <FaTrash className="mr-2" />
-                    Delete
-                  </Button>
+            {driversData.items.length > 0 ? (
+              driversData.items.map((driver, index) => (
+                <tr key={driver.driverId} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
+                  <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">{driver.driverName}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">{driver.driverLicense}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">{driver.driverState}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
+                    {new Date(driver.driverLicenseExpirationDate).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-base font-medium flex space-x-3">
+                    <Link to={`/dashboard/drivers/${driver.driverId}/edit`} className="flex items-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md shadow">
+                      <FaEdit className="mr-2" /> Edit
+                    </Link>
+                    <Button className="flex items-center bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md shadow" onClick={() => handleDelete(driver.driverId)}>
+                      <FaTrash className="mr-2" /> Delete
+                    </Button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" className="px-6 py-4 text-center text-lg font-semibold text-gray-500">
+                  No drivers available. Click "Add New Driver" to start.
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
 
-      <div className="flex justify-center py-8 mb-8 shadow-inner">
-        <Pagination
-          pageCount={pagination.totalPages}
-          onPageChange={handlePageClick}
-        />
+      <div className="flex justify-center py-8 mb-8">
+        <Pagination pageCount={pagination.totalPages} onPageChange={handlePageClick} />
       </div>
     </div>
   );

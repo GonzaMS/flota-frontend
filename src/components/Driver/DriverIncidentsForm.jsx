@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import useDriverIncidents from "@/hooks/useDriverIncidents";
+import useDrivers from "@/hooks/useDrivers"; 
 import { useEffect, useState } from "react";
 import { AiOutlineArrowLeft } from "react-icons/ai";
 import { useNavigate, useParams } from "react-router-dom";
@@ -10,6 +11,7 @@ import { toast } from "react-toastify";
 const DriverIncidentsForm = () => {
   const { incidentId } = useParams();
   const { getIncidentById, createIncident, updateIncident } = useDriverIncidents();
+  const { drivers, getDrivers } = useDrivers(); 
   const [incidentData, setIncidentData] = useState({
     incidentDescription: "",
     createdAt: "",
@@ -22,6 +24,7 @@ const DriverIncidentsForm = () => {
     if (incidentId) {
       fetchIncidentData();
     }
+    getDrivers(); 
   }, [incidentId]);
 
   const fetchIncidentData = async () => {
@@ -122,19 +125,24 @@ const DriverIncidentsForm = () => {
 
           <div>
             <Label htmlFor="driverId" className="block font-semibold text-gray-700">
-              Driver ID
+              Driver
             </Label>
-            <Input
-              type="text"
+            <select
               id="driverId"
               value={incidentData.driverId}
               onChange={(e) =>
                 setIncidentData({ ...incidentData, driverId: e.target.value })
               }
-              placeholder="Enter driver ID"
               required
               className="w-full mt-1 p-2 border rounded focus:border-indigo-500 focus:outline-none"
-            />
+            >
+              <option value="">Select a driver</option>
+              {drivers.map((driver) => (
+                <option key={driver.driverId} value={driver.driverId}>
+                  {driver.driverName}
+                </option>
+              ))}
+            </select>
           </div>
 
           <Button

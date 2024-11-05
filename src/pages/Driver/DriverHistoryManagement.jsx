@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import useDrivingHistory from "@/hooks/useDrivingHistory";
+import useAssignedOrders from "@/hooks/useAssignedOrders";
 import useDrivers from "@/hooks/useDrivers"; 
 import useCars from "@/hooks/useCars"; 
 import { useEffect, useState } from "react";
@@ -14,6 +15,7 @@ const DriverHistoryManagement = () => {
   const [drivers, setDrivers] = useState([]);
   const [cars, setCars] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
+  const { getAssignedOrders, assignedOrders } = useAssignedOrders();
   const { getDrivingHistories, deleteDrivingHistory, pagination } = useDrivingHistory();
   const { getDrivers } = useDrivers(); 
   const { getCars } = useCars(); 
@@ -41,9 +43,18 @@ const DriverHistoryManagement = () => {
     }
   };
 
+  const fetchAssignedOrdersData = async () => {
+    try {
+      await getAssignedOrders(); 
+    } catch (error) {
+      console.error("Error fetching assigned orders:", error);
+    }
+  };
+
   useEffect(() => {
     fetchHistory();
     fetchDriversAndCars();
+    fetchAssignedOrdersData(); 
   }, [currentPage, pagination.pageSize]);
 
   const handleDelete = (drivingHistoryId) => {
@@ -101,7 +112,7 @@ const DriverHistoryManagement = () => {
     <div className="h-screen flex flex-col bg-gray-100">
       <div className="mb-6 flex justify-between items-center pt-20 px-6">
         <h2 className="text-3xl font-bold text-indigo-700">Driving History Management</h2>
-        <Link to="/dashboard/driver-activity/new">
+        <Link to="/dashboard/driver-history/new">
           <Button className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded shadow">
             Add New Driving History
           </Button>
@@ -134,7 +145,7 @@ const DriverHistoryManagement = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">{car ? car.brand : 'N/A'}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-base font-medium flex space-x-3">
                     <Link
-                      to={`/dashboard/driver-activity/${history.drivingHistoryId}/edit`}
+                      to={`/dashboard/driver-history/${history.drivingHistoryId}/edit`}
                       className="flex items-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md shadow"
                     >
                       <FaEdit className="mr-2" />
@@ -155,7 +166,7 @@ const DriverHistoryManagement = () => {
         </table>
       </div>
 
-      <div className="flex justify-center py-8 mb-8 shadow-inner">
+      <div className="flex justify-center py-8 mb-8">
         <Pagination pageCount={pagination.totalPages} onPageChange={handlePageClick} />
       </div>
     </div>
