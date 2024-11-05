@@ -68,7 +68,6 @@ const DashboardHeader = ({ isOpen }) => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        {/* Test */}
       </div>
     </header>
   );
