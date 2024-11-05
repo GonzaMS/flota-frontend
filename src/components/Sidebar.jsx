@@ -15,10 +15,10 @@ import GenerateReportButton from "./car/GenerateReportButton";
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const location = useLocation();
-  const [isSubmenuOpen, setIsSubmenuOpen] = useState(false);
+  const [isDriverActivityOpen, setIsDriverActivityOpen] = useState(false);
 
-  const toggleSubmenu = () => {
-    setIsSubmenuOpen(!isSubmenuOpen);
+  const toggleDriverActivitySubmenu = () => {
+    setIsDriverActivityOpen(!isDriverActivityOpen);
   };
 
   const menuItems = [
@@ -30,7 +30,19 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       path: "/dashboard/orders",
     },
     { name: "Car Maintenance", icon: FaWrench, path: "/dashboard/maintenance" },
+    {
+      name: "Driver Activity",
+      icon: FaClipboardCheck,
+      path: "#",
+      isSubmenu: true,
+    },
   ];
+
+  // Verificar si estamos en una de las páginas de Driver Activity
+  const isDriverActivityActive =
+    location.pathname === "/dashboard/driver-history" ||
+    location.pathname === "/dashboard/driver-incidents" ||
+    location.pathname === "/dashboard/driver-assigner";
 
   return (
     <div
@@ -61,10 +73,71 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         <ul className="space-y-4 text-sm">
           {menuItems.map((item) => {
             const isActive = location.pathname === item.path;
-            return (
+
+            return item.isSubmenu ? (
+              <li key={item.name} className="flex flex-col space-y-2">
+                <div
+                  className={`flex items-center space-x-4 cursor-pointer hover:bg-indigo-600 transition p-3 rounded-md ${
+                    isDriverActivityActive ? "bg-indigo-500" : ""
+                  }`}
+                  onClick={toggleDriverActivitySubmenu}
+                >
+                  <item.icon size={24} />
+                  <span>{isOpen && item.name}</span>
+                </div>
+                {isDriverActivityOpen && (
+                  <ul className="ml-10 space-y-4">
+                    <li className="flex items-center space-x-2">
+                      <FaHistory size={20} className="text-gray-500" />
+                      <Link
+                        to="/dashboard/driver-history"
+                        className={`hover:text-indigo-400 ${
+                          location.pathname === "/dashboard/driver-history"
+                            ? "text-white"
+                            : "text-gray-300"
+                        }`}
+                      >
+                        Driver History
+                      </Link>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <FaExclamationTriangle
+                        size={20}
+                        className="text-gray-500"
+                      />
+                      <Link
+                        to="/dashboard/driver-incidents"
+                        className={`hover:text-indigo-400 ${
+                          location.pathname === "/dashboard/driver-incidents"
+                            ? "text-white"
+                            : "text-gray-300"
+                        }`}
+                      >
+                        Driver Incidents
+                      </Link>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <FaClipboardCheck size={20} className="text-gray-500" />
+                      <Link
+                        to="/dashboard/driver-assigner"
+                        className={`hover:text-indigo-400 ${
+                          location.pathname === "/dashboard/driver-assigner"
+                            ? "text-white"
+                            : "text-gray-300"
+                        }`}
+                      >
+                        Assigner Driver
+                      </Link>
+                    </li>
+                  </ul>
+                )}
+              </li>
+            ) : (
               <li
                 key={item.name}
-                className={`flex items-center ${isActive ? "bg-indigo-500 rounded-lg" : ""}`}
+                className={`flex items-center ${
+                  isActive ? "bg-indigo-500 rounded-lg" : ""
+                }`}
               >
                 <Link
                   to={item.path}
@@ -78,38 +151,6 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
               </li>
             );
           })}
-
-          <li className="flex flex-col space-y-2">
-            <div
-              className="flex items-center space-x-6 cursor-pointer hover:text-indigo-400"
-              onClick={toggleSubmenu}
-            >
-              <FaClipboardCheck size={24} />
-              <span>{isOpen && "Driver Activity"}</span>
-            </div>
-            {isSubmenuOpen && (
-              <ul className="ml-10 space-y-4">
-                <li className="flex items-center space-x-2">
-                  <FaHistory size={20} className="text-gray-500" />
-                  <Link
-                    to="/dashboard/driver-activity"
-                    className="hover:text-indigo-400"
-                  >
-                    Driver History
-                  </Link>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <FaExclamationTriangle size={20} className="text-gray-500" />
-                  <Link
-                    to="/dashboard/driver-incidents"
-                    className="hover:text-indigo-400"
-                  >
-                    Driver Incidents
-                  </Link>
-                </li>
-              </ul>
-            )}
-          </li>
         </ul>
       </nav>
 

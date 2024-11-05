@@ -1,12 +1,14 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import DriverForm from './components/DriverForm';
-import DrivingHistoryForm from './components/DrivingHistoryForm';
-import DriverIncidentsForm from './components/DriverIncidentsForm';
-import DriverManagement from './pages/DriverManagement';
-import DriverHistoryManagement from './pages/DriverHistoryManagement';
-import DriverIncidentsManagement from './pages/DriverIncidentsManagement'; 
+import DriverForm from './components/Driver/DriverForm';
+import DrivingHistoryForm from './components/Driver/DrivingHistoryForm';
+import DriverIncidentsForm from './components/Driver/DriverIncidentsForm';
+import DriverAssignerForm from './components/Driver/DriverAssignerForm';
+import DriverManagement from './pages/Driver/DriverManagement';
+import DriverHistoryManagement from './pages/Driver/DriverHistoryManagement';
+import DriverIncidentsManagement from './pages/Driver/DriverIncidentsManagement'; 
+import DriverAssignerManagement from './pages/Driver/DriverAssignerManagement';
 import CarForm from "./components/car/car_management/CarForm";
 import MaintenanceForm from "./components/car/MaintenanceForm";
 import AuthLayout from "./layout/AuthLayout";
@@ -41,16 +43,20 @@ function App() {
               <Route path="/dashboard/cars/new" element={<CarForm />} />
               <Route path="/dashboard/cars/:carId/edit" element={<CarForm />} />
 
-              {/* Maintenance routes */}
+              {/* Driver routes */}
               <Route path="/dashboard/drivers" element={<DriverManagement />} />
               <Route path="/dashboard/drivers/new" element={<DriverForm />} />
               <Route path="/dashboard/drivers/:driverId/edit" element={<DriverForm />} />
-              <Route path="/dashboard/driver-activity" element={<DriverHistoryManagement />} />
-              <Route path="/dashboard/driver-activity/new" element={<DrivingHistoryForm />} />
-              <Route path="/dashboard/driver-activity/:drivingHistoryId/edit" element={<DrivingHistoryForm />} />
+              <Route path="/dashboard/driver-history" element={<DriverHistoryManagement />} />
+              <Route path="/dashboard/driver-history/new" element={<DrivingHistoryForm />} />
+              <Route path="/dashboard/driver-history/:drivingHistoryId/edit" element={<DrivingHistoryForm />} />
               <Route path="/dashboard/driver-incidents" element={<DriverIncidentsManagement />} /> 
               <Route path="/dashboard/driver-incidents/new" element={<DriverIncidentsForm />} /> 
               <Route path="/dashboard/driver-incidents/:incidentId/edit" element={<DriverIncidentsForm />} /> 
+              <Route path="/dashboard/driver-assigner" element={<DriverAssignerManagement />} />
+              <Route path="/dashboard/driver-assigner/new" element={<DriverAssignerForm />} />
+              <Route path="/dashboard/driver-assigner/:assignerId/edit" element={<DriverAssignerForm />} />
+
               
 
               {/* Maintenance routes */}

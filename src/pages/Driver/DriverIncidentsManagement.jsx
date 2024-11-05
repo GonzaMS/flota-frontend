@@ -145,7 +145,7 @@ const DriverIncidentsManagement = () => {
         </table>
       </div>
 
-      <div className="flex justify-center py-8 mb-8 shadow-inner">
+      <div className="flex justify-center py-8 mb-8">
         <Pagination
           pageCount={pagination.totalPages}
           onPageChange={handlePageClick}
