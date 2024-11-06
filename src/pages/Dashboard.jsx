@@ -1,3 +1,4 @@
+import Loader from "@/components/common/Loader";
 import useCars from "@/hooks/useCars";
 import useKilometers from "@/hooks/useKilometers";
 import useMaintenances from "@/hooks/useMaintenances";
@@ -35,6 +36,7 @@ const Dashboard = () => {
     try {
       const res = await getCars();
       setCarsData(res.items);
+      console.log(res);
     } catch (error) {
       console.error("Error fetching vehicle data:", error);
     }
@@ -48,6 +50,7 @@ const Dashboard = () => {
     try {
       const res = await getKilometers();
       setKilometerData(res.items);
+      console.log(res);
     } catch (error) {
       console.error("Error fetching kilometers data:", error);
     }
@@ -61,6 +64,7 @@ const Dashboard = () => {
     try {
       const res = await getMaintenances();
       setMaintenancesData(res.items);
+      console.log(res);
     } catch (error) {
       console.error("Error fetching maintenance data:", error);
     }
@@ -71,18 +75,7 @@ const Dashboard = () => {
   }, []);
 
   if (!carsData || !kilometerData || !maintenancesData) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="sk-chase">
-          <div className="sk-chase-dot"></div>
-          <div className="sk-chase-dot"></div>
-          <div className="sk-chase-dot"></div>
-          <div className="sk-chase-dot"></div>
-          <div className="sk-chase-dot"></div>
-          <div className="sk-chase-dot"></div>
-        </div>
-      </div>
-    );
+    return <Loader />;
   }
 
   const carStatusData = {
