@@ -10,11 +10,10 @@ import {
   FaWrench,
 } from "react-icons/fa";
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useMatch } from "react-router-dom";
 import GenerateReportButton from "./car/GenerateReportButton";
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
-  const location = useLocation();
   const [isDriverActivityOpen, setIsDriverActivityOpen] = useState(false);
 
   const toggleDriverActivitySubmenu = () => {
@@ -38,11 +37,12 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     },
   ];
 
-  // Verificar si estamos en una de las páginas de Driver Activity
-  const isDriverActivityActive =
-    location.pathname === "/dashboard/driver-history" ||
-    location.pathname === "/dashboard/driver-incidents" ||
-    location.pathname === "/dashboard/driver-assigner";
+  // Verificar si estamos en una de las páginas de Driver Activity usando useMatch
+  const matchDriverHistory = useMatch("/dashboard/driver-history");
+  const matchDriverIncidents = useMatch("/dashboard/driver-incidents");
+  const matchDriverAssigner = useMatch("/dashboard/driver-assigner");
+
+  const isDriverActivityActive = matchDriverHistory || matchDriverIncidents || matchDriverAssigner;
 
   return (
     <div
@@ -72,7 +72,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       <nav className={`mt-10 ${!isOpen && "hidden md:block"}`}>
         <ul className="space-y-4 text-sm">
           {menuItems.map((item) => {
-            const isActive = location.pathname === item.path;
+            const isActive = useMatch(item.path);
 
             return item.isSubmenu ? (
               <li key={item.name} className="flex flex-col space-y-2">
@@ -92,25 +92,18 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                       <Link
                         to="/dashboard/driver-history"
                         className={`hover:text-indigo-400 ${
-                          location.pathname === "/dashboard/driver-history"
-                            ? "text-white"
-                            : "text-gray-300"
+                          matchDriverHistory ? "text-white" : "text-gray-300"
                         }`}
                       >
                         Driver History
                       </Link>
                     </li>
                     <li className="flex items-center space-x-2">
-                      <FaExclamationTriangle
-                        size={20}
-                        className="text-gray-500"
-                      />
+                      <FaExclamationTriangle size={20} className="text-gray-500" />
                       <Link
                         to="/dashboard/driver-incidents"
                         className={`hover:text-indigo-400 ${
-                          location.pathname === "/dashboard/driver-incidents"
-                            ? "text-white"
-                            : "text-gray-300"
+                          matchDriverIncidents ? "text-white" : "text-gray-300"
                         }`}
                       >
                         Driver Incidents
@@ -121,9 +114,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                       <Link
                         to="/dashboard/driver-assigner"
                         className={`hover:text-indigo-400 ${
-                          location.pathname === "/dashboard/driver-assigner"
-                            ? "text-white"
-                            : "text-gray-300"
+                          matchDriverAssigner ? "text-white" : "text-gray-300"
                         }`}
                       >
                         Assigner Driver
