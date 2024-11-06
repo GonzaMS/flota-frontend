@@ -9,11 +9,10 @@ import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { FaPlus } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const CarMaintenance = () => {
-  const navigate = useNavigate();
   const {
     getMaintenances,
     getByCarIdAndDate,
@@ -21,7 +20,6 @@ const CarMaintenance = () => {
     getByCarId,
     getByDate,
     isLoading,
-    error,
     pagination,
   } = useMaintenances();
   const { getCars } = useCars();
@@ -118,11 +116,6 @@ const CarMaintenance = () => {
     fetchMaintenances(event.selected);
   };
 
-  const formatDate = (dateString) => {
-    const options = { year: "numeric", month: "long", day: "numeric" };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
-
   const handleDelete = (maintenanceId) => {
     toast.info(
       <>
@@ -192,9 +185,7 @@ const CarMaintenance = () => {
         <Button
           onClick={handleFilterSubmit}
           className="bg-indigo-600 text-white px-4"
-        >
-          Apply Filters
-        </Button>
+        ></Button>
       </div>
 
       {maintenances.length === 0 ? (
