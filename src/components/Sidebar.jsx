@@ -1,15 +1,15 @@
+import { useState } from "react";
 import {
   FaBars,
   FaCar,
+  FaClipboardCheck,
   FaClipboardList,
+  FaExclamationTriangle,
+  FaHistory,
   FaTimes,
   FaUser,
-  FaClipboardCheck,
-  FaHistory,
-  FaExclamationTriangle,
   FaWrench,
 } from "react-icons/fa";
-import { useState } from "react";
 import { Link, useMatch } from "react-router-dom";
 import GenerateReportButton from "./car/GenerateReportButton";
 
@@ -37,12 +37,27 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     },
   ];
 
+  // Usa useMatch para cada ruta principal
+  const matchCarManagement = useMatch("/dashboard/cars");
+  const matchDriverManagement = useMatch("/dashboard/drivers");
+  const matchTravelOrdersManagement = useMatch("/dashboard/orders");
+  const matchCarMaintenance = useMatch("/dashboard/maintenance");
+
   // Verificar si estamos en una de las páginas de Driver Activity usando useMatch
   const matchDriverHistory = useMatch("/dashboard/driver-history");
   const matchDriverIncidents = useMatch("/dashboard/driver-incidents");
   const matchDriverAssigner = useMatch("/dashboard/driver-assigner");
 
-  const isDriverActivityActive = matchDriverHistory || matchDriverIncidents || matchDriverAssigner;
+  const isDriverActivityActive =
+    matchDriverHistory || matchDriverIncidents || matchDriverAssigner;
+
+  // Crea un objeto de coincidencias para las rutas principales
+  const matchItems = {
+    "Car Management": matchCarManagement,
+    "Driver Management": matchDriverManagement,
+    "Travel Orders Management": matchTravelOrdersManagement,
+    "Car Maintenance": matchCarMaintenance,
+  };
 
   return (
     <div
@@ -72,7 +87,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       <nav className={`mt-10 ${!isOpen && "hidden md:block"}`}>
         <ul className="space-y-4 text-sm">
           {menuItems.map((item) => {
-            const isActive = useMatch(item.path);
+            const isActive = matchItems[item.name];
 
             return item.isSubmenu ? (
               <li key={item.name} className="flex flex-col space-y-2">
@@ -99,7 +114,10 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                       </Link>
                     </li>
                     <li className="flex items-center space-x-2">
-                      <FaExclamationTriangle size={20} className="text-gray-500" />
+                      <FaExclamationTriangle
+                        size={20}
+                        className="text-gray-500"
+                      />
                       <Link
                         to="/dashboard/driver-incidents"
                         className={`hover:text-indigo-400 ${

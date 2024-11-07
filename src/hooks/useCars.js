@@ -123,6 +123,54 @@ const useCars = () => {
     );
   };
 
+  // Filters
+
+  const getCarByState = async (state, page = 0, pageSize = 10) => {
+    const token = getToken();
+    return handleRequest(() =>
+      api.get(
+        `${CARS_URL}/state/${state}?pageNumber=${page}&pageSize=${pageSize}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+    );
+  };
+
+  const getCarByBrand = async (brand, page = 0, pageSize = 10) => {
+    const token = getToken();
+    return handleRequest(() =>
+      api.get(
+        `${CARS_URL}/brand/${brand}?pageNumber=${page}&pageSize=${pageSize}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+    );
+  };
+
+  const getCarByLicensePlate = async (
+    licensePlate,
+    page = 0,
+    pageSize = 10
+  ) => {
+    const token = getToken();
+    return handleRequest(() =>
+      api.get(
+        `${CARS_URL}/licensePlate/${licensePlate}?pageNumber=${page}&pageSize=${pageSize}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+    );
+  };
+
   return {
     cars,
     pagination,
@@ -135,6 +183,9 @@ const useCars = () => {
     deactivateCar,
     activateCar,
     deleteCar,
+    getCarByState,
+    getCarByBrand,
+    getCarByLicensePlate,
   };
 };
 
