@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 
 const CarForm = () => {
   const { carId } = useParams();
-  const { getById, createCar } = useCars();
+  const { getById, createCar, isLoading } = useCars();
   const [carData, setCarData] = useState({
     brand: "",
     model: "",
@@ -170,9 +170,12 @@ const CarForm = () => {
 
           <Button
             type="submit"
-            className="w-full py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors duration-300"
+            disabled={isLoading}
+            className={`w-full py-2 rounded ${
+              isLoading ? "bg-gray-400" : "bg-indigo-600 hover:bg-indigo-700"
+            } text-white transition-colors duration-300`}
           >
-            {carId ? "Update Car" : "Add Car"}
+            {isLoading ? "Saving..." : carId ? "Update Car" : "Add Car"}
           </Button>
         </form>
       </div>
