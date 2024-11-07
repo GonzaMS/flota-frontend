@@ -36,7 +36,6 @@ const Dashboard = () => {
     try {
       const res = await getCars();
       setCarsData(res.items);
-      console.log(res);
     } catch (error) {
       console.error("Error fetching vehicle data:", error);
     }
@@ -50,7 +49,6 @@ const Dashboard = () => {
     try {
       const res = await getKilometers();
       setKilometerData(res.items);
-      console.log(res);
     } catch (error) {
       console.error("Error fetching kilometers data:", error);
     }
@@ -64,7 +62,6 @@ const Dashboard = () => {
     try {
       const res = await getMaintenances();
       setMaintenancesData(res.items);
-      console.log(res);
     } catch (error) {
       console.error("Error fetching maintenance data:", error);
     }

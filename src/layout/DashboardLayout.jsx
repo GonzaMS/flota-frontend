@@ -16,8 +16,10 @@ const DashboardLayout = () => {
         } transition-all duration-300`}
       >
         <DashboardHeader isOpen={isSidebarOpen} />
-        <main className="flex-1 bg-gray-100 p-4 md:p-6 xl:p-8 2xl:p-10 overflow-y-auto">
-          <Outlet />
+        <main className="flex-1 bg-gray-100 p-4 md:p-6 xl:p-8 2xl:p-10 overflow-hidden">
+          <div className="overflow-auto max-h-full">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

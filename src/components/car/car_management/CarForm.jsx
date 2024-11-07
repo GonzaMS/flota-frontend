@@ -1,6 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import useCars from "@/hooks/useCars";
 import { useEffect, useState } from "react";
 import { AiOutlineArrowLeft } from "react-icons/ai";
@@ -154,29 +161,33 @@ const CarForm = () => {
             >
               State
             </Label>
-            <select
-              id="state"
+            <Select
               value={carData.state}
-              onChange={(e) =>
-                setCarData({ ...carData, state: e.target.value })
+              onValueChange={(value) =>
+                setCarData({ ...carData, state: value })
               }
-              required
-              className="w-full mt-1 p-2 border rounded focus:border-indigo-500 focus:outline-none"
             >
-              <option value="ACTIVE">Active</option>
-              <option value="INACTIVE">Inactive</option>
-            </select>
+              <SelectTrigger className="w-full mt-1">
+                <SelectValue placeholder="Select state" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ACTIVE">Active</SelectItem>
+                <SelectItem value="INACTIVE">Inactive</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className={`w-full py-2 rounded ${
-              isLoading ? "bg-gray-400" : "bg-indigo-600 hover:bg-indigo-700"
-            } text-white transition-colors duration-300`}
-          >
-            {isLoading ? "Saving..." : carId ? "Update Car" : "Add Car"}
-          </Button>
+          {carData.state === "ACTIVE" && (
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className={`w-full py-2 rounded ${
+                isLoading ? "bg-gray-400" : "bg-indigo-600 hover:bg-indigo-700"
+              } text-white transition-colors duration-300`}
+            >
+              {isLoading ? "Saving..." : carId ? "Update Car" : "Add Car"}
+            </Button>
+          )}
         </form>
       </div>
     </div>

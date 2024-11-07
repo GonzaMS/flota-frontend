@@ -35,7 +35,8 @@ const GenerateReportButton = () => {
     <Button
       className="bg-indigo-500 text-white mt-auto flex items-center"
       onClick={handleGenerateReport}
-      disabled={isLoading}
+      // disabled={isLoading}
+      disabled={true}
     >
       <FaFileAlt size={20} />
       <span>Generate Report</span>

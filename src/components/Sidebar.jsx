@@ -11,7 +11,7 @@ import {
   FaWrench,
 } from "react-icons/fa";
 import { Link, useMatch } from "react-router-dom";
-import GenerateReportButton from "./car/GenerateReportButton";
+import GenerateReportButton from "./reports/GenerateReportButton";
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const [isDriverActivityOpen, setIsDriverActivityOpen] = useState(false);
@@ -65,14 +65,6 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         isOpen ? "w-64" : "w-20"
       } h-screen bg-gradient-to-b from-gray-800 to-gray-900 text-white flex flex-col p-5 space-y-6 transition-all duration-300 fixed left-0 top-0 z-40 shadow-lg`}
     >
-      {/* Toggle Button */}
-      <button
-        className="text-white bg-indigo-500 rounded-full p-2 transition-colors hover:bg-indigo-600 md:hidden"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        {isOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
-      </button>
-
       {/* Sidebar Header */}
       {isOpen && (
         <Link
@@ -82,9 +74,16 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           Fleet Management
         </Link>
       )}
+      {/* Toggle Button */}
+      <button
+        className="text-white bg-indigo-500 rounded-full p-2 transition-colors hover:bg-indigo-600 md:hidden"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        {isOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+      </button>
 
       {/* Navigation */}
-      <nav className={`mt-10 ${!isOpen && "hidden md:block"}`}>
+      <nav className={`mt-10 ${!isOpen && "hidden md:block"} flex-grow`}>
         <ul className="space-y-4 text-sm">
           {menuItems.map((item) => {
             const isActive = matchItems[item.name];
