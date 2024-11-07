@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import useDrivingHistory from "@/hooks/useDrivingHistory";
 import useAssignedOrders from "@/hooks/useAssignedOrders";
-import useDrivers from "@/hooks/useDrivers"; 
-import useCars from "@/hooks/useCars"; 
+import useDrivers from "@/hooks/useDrivers";
+import useCars from "@/hooks/useCars";
 import { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link } from "react-router-dom";
@@ -14,11 +14,13 @@ const DriverHistoryManagement = () => {
   const [loading, setLoading] = useState(true);
   const [drivers, setDrivers] = useState([]);
   const [cars, setCars] = useState([]);
+  const [assigned, setAssigned] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
-  const { getAssignedOrders, assignedOrders } = useAssignedOrders();
-  const { getDrivingHistories, deleteDrivingHistory, pagination } = useDrivingHistory();
-  const { getDrivers } = useDrivers(); 
-  const { getCars } = useCars(); 
+  const { getDrivingHistories, deleteDrivingHistory, pagination } =
+    useDrivingHistory();
+  const { getAssignedOrders } = useAssignedOrders();
+  const { getDrivers } = useDrivers();
+  const { getCars } = useCars();
 
   const fetchHistory = async () => {
     try {
@@ -36,7 +38,7 @@ const DriverHistoryManagement = () => {
     try {
       const driversData = await getDrivers();
       const carsData = await getCars();
-      setDrivers(driversData.items); 
+      setDrivers(driversData.items);
       setCars(carsData.items);
     } catch (error) {
       console.error("Error fetching drivers or cars:", error);
@@ -45,7 +47,8 @@ const DriverHistoryManagement = () => {
 
   const fetchAssignedOrdersData = async () => {
     try {
-      await getAssignedOrders(); 
+      const assignedData = await getAssignedOrders();
+      setAssigned(assignedData.items);
     } catch (error) {
       console.error("Error fetching assigned orders:", error);
     }
@@ -54,7 +57,7 @@ const DriverHistoryManagement = () => {
   useEffect(() => {
     fetchHistory();
     fetchDriversAndCars();
-    fetchAssignedOrdersData(); 
+    fetchAssignedOrdersData();
   }, [currentPage, pagination.pageSize]);
 
   const handleDelete = (drivingHistoryId) => {
@@ -62,7 +65,10 @@ const DriverHistoryManagement = () => {
       <div>
         <p>Are you sure you want to delete this driving history?</p>
         <div className="flex justify-end">
-          <Button className="mr-2 bg-red-500 text-white" onClick={() => confirmDelete(drivingHistoryId)}>
+          <Button
+            className="mr-2 bg-red-500 text-white"
+            onClick={() => confirmDelete(drivingHistoryId)}
+          >
             Delete
           </Button>
           <Button className="bg-gray-500 text-white" onClick={cancelDelete}>
@@ -104,14 +110,18 @@ const DriverHistoryManagement = () => {
 
   if (!historyData.length) {
     return (
-      <p className="text-center text-lg font-semibold">No driving history available.</p>
+      <p className="text-center text-lg font-semibold">
+        No driving history available.
+      </p>
     );
   }
 
   return (
     <div className="h-screen flex flex-col bg-gray-100">
       <div className="mb-6 flex justify-between items-center pt-20 px-6">
-        <h2 className="text-3xl font-bold text-indigo-700">Driving History Management</h2>
+        <h2 className="text-3xl font-bold text-indigo-700">
+          Driving History Management
+        </h2>
         <Link to="/dashboard/driver-history/new">
           <Button className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded shadow">
             Add New Driving History
@@ -123,26 +133,50 @@ const DriverHistoryManagement = () => {
         <table className="min-w-full bg-white">
           <thead className="bg-indigo-700 text-white">
             <tr>
-              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">Driving Date</th>
-              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">Kilometers Driven</th>
-              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">Driver Name</th>
-              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">Car Brand</th>
-              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">Actions</th>
+              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
+                Driving Date
+              </th>
+              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
+                Kilometers Driven
+              </th>
+              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
+                Driver Name
+              </th>
+              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
+                Car Brand
+              </th>
+              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {historyData.map((history, index) => {
-              const driver = drivers.find(d => d.driverId === history.driverId);
-              const car = cars.find(c => c.id === history.carId);
+              const assignedOrder = assigned.find(
+                (a) => a.assignedOrderId === history.assignedOrderId
+              );
+              const driver = drivers.find(
+                (d) => d.driverId === assignedOrder?.driverId
+              );
+              const car = cars.find((c) => c.id === assignedOrder?.carId);
 
               return (
-                <tr key={history.drivingHistoryId} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
+                <tr
+                  key={index}
+                  className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
+                >
                   <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
                     {new Date(history.createdAt).toLocaleDateString()}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">{history.kmDriven}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">{driver ? driver.driverName : 'N/A'}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">{car ? car.brand : 'N/A'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
+                    {history.kmDriven}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
+                    {driver ? driver.driverName : "N/A"}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
+                    {car ? car.brand : "N/A"}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-base font-medium flex space-x-3">
                     <Link
                       to={`/dashboard/driver-history/${history.drivingHistoryId}/edit`}
@@ -167,7 +201,10 @@ const DriverHistoryManagement = () => {
       </div>
 
       <div className="flex justify-center py-8 mb-8">
-        <Pagination pageCount={pagination.totalPages} onPageChange={handlePageClick} />
+        <Pagination
+          pageCount={pagination.totalPages}
+          onPageChange={handlePageClick}
+        />
       </div>
     </div>
   );

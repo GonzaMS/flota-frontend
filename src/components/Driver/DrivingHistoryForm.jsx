@@ -75,12 +75,6 @@ const DriverHistoryForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!historyData.drivingDate) {
-      toast.error("Driving date is required.");
-      return;
-    }
-
     try {
       if (drivingHistoryId) {
         await updateDrivingHistory(drivingHistoryId, historyData);
