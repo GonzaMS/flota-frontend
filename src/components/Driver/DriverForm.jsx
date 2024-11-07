@@ -2,7 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import useDrivers from "@/hooks/useDrivers";
-import { useEffect, useState } from "react";
+import useUsers from "@/hooks/useUsers";
+import useRole from "@/hooks/UseRole";
+import { useEffect, useState, useCallback } from "react";
 import { AiOutlineArrowLeft } from "react-icons/ai";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -10,45 +12,83 @@ import { toast } from "react-toastify";
 const DriverForm = () => {
   const { driverId } = useParams();
   const { getById, createDriver, updateDriver } = useDrivers();
+  const [usersFetched, setUsersFetched] = useState(false);
+  const { getAllUsers } = useUsers();
+  const { addRole } = useRole();
+  const navigate = useNavigate();
+
+  const [users, setUsers] = useState([]);
   const [driverData, setDriverData] = useState({
+    userId: "", 
     driverName: "",
     driverLicense: "",
     driverState: "ACTIVE",
     driverLicenseExpirationDate: "",
   });
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (driverId) {
-      fetchDriverData();
-    }
-  }, [driverId]);
-
-  const fetchDriverData = async () => {
+  const fetchDriverData = useCallback(async () => {
+    if (!driverId) return;
     try {
       const res = await getById(driverId);
-      const formattedDate = res.driverLicenseExpirationDate.split("T")[0];
       setDriverData({
-        ...res,
-        driverLicenseExpirationDate: formattedDate,
+        userId: res.userId,
+        driverName: res.driverName,
+        driverLicense: res.driverLicense,
+        driverState: res.driverState,
+        driverLicenseExpirationDate: res.driverLicenseExpirationDate.split("T")[0],
       });
     } catch (error) {
       console.error("Error fetching driver data:", error);
+      toast.error("Failed to fetch driver data.");
     }
+  }, [driverId, getById]);
+
+  const fetchUsers = useCallback(async () => {
+    if (usersFetched) return; 
+    try {
+      const { items } = await getAllUsers();
+      setUsers(items.filter(user => user.active));
+      setUsersFetched(true); 
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      toast.error("Failed to fetch users.");
+    }
+  }, [getAllUsers, usersFetched]);
+  
+  useEffect(() => {
+    fetchDriverData();
+    fetchUsers();
+  }, [fetchDriverData, fetchUsers]);
+
+  const handleUserChange = (e) => {
+    const selectedUserId = parseInt(e.target.value);
+    const selectedUser = users.find(user => user.userId === selectedUserId);
+  
+    setDriverData(prevData => ({
+      ...prevData,
+      userId: selectedUserId,
+      driverName: selectedUser ? selectedUser.fullName : "",
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const driverRequest = { ...driverData }; 
+
       if (driverId) {
-        await updateDriver(driverId, driverData); 
+        await updateDriver(driverId, driverRequest);
       } else {
-        await createDriver(driverData); 
+        await createDriver(driverRequest);
+        await addRole({ userId: driverData.userId, roleName: "ROLE_DRIVER" });
+
       }
+
       navigate("/dashboard/drivers");
       toast.success("Driver saved successfully!");
     } catch (error) {
       console.error("Error saving driver:", error);
+      toast.error("Failed to save driver.");
     }
   };
 
@@ -71,37 +111,37 @@ const DriverForm = () => {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <Label
-              htmlFor="driverName"
-              className="block font-semibold text-gray-700"
-            >
-              Driver Name
+            <Label htmlFor="user" className="block font-semibold text-gray-700">
+              Select Driver
             </Label>
-            <Input
-              id="driverName"
-              value={driverData.driverName}
-              onChange={(e) =>
-                setDriverData({ ...driverData, driverName: e.target.value })
-              }
-              placeholder="Enter driver's name"
+            <select
+              id="user"
+              value={driverData.userId}
+              onChange={handleUserChange}
               required
               className="w-full mt-1 p-2 border rounded focus:border-indigo-500 focus:outline-none"
-            />
+            >
+              <option value="" disabled>
+                Select a Driver
+              </option>
+              {users.map(user => (
+                <option key={user.userId} value={user.userId}>
+                  {user.fullName}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>
-            <Label
-              htmlFor="driverLicense"
-              className="block font-semibold text-gray-700"
-            >
+            <Label htmlFor="driverLicense" className="block font-semibold text-gray-700">
               Driver License
             </Label>
             <Input
               id="driverLicense"
               value={driverData.driverLicense}
-              onChange={(e) =>
-                setDriverData({ ...driverData, driverLicense: e.target.value })
-              }
+              onChange={(e) => setDriverData(prevData => ({
+                ...prevData, driverLicense: e.target.value
+              }))}
               placeholder="Enter driver's license"
               required
               className="w-full mt-1 p-2 border rounded focus:border-indigo-500 focus:outline-none"
@@ -119,30 +159,24 @@ const DriverForm = () => {
               type="date"
               id="driverLicenseExpirationDate"
               value={driverData.driverLicenseExpirationDate}
-              onChange={(e) =>
-                setDriverData({
-                  ...driverData,
-                  driverLicenseExpirationDate: e.target.value,
-                })
-              }
+              onChange={(e) => setDriverData(prevData => ({
+                ...prevData, driverLicenseExpirationDate: e.target.value
+              }))}
               required
               className="w-full mt-1 p-2 border rounded focus:border-indigo-500 focus:outline-none"
             />
           </div>
 
           <div>
-            <Label
-              htmlFor="driverState"
-              className="block font-semibold text-gray-700"
-            >
+            <Label htmlFor="driverState" className="block font-semibold text-gray-700">
               State
             </Label>
             <select
               id="driverState"
               value={driverData.driverState}
-              onChange={(e) =>
-                setDriverData({ ...driverData, driverState: e.target.value })
-              }
+              onChange={(e) => setDriverData(prevData => ({
+                ...prevData, driverState: e.target.value
+              }))}
               required
               className="w-full mt-1 p-2 border rounded focus:border-indigo-500 focus:outline-none"
             >

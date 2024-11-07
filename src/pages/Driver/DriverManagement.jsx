@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import useDrivers from "@/hooks/useDrivers";
+import useRole from "@/hooks/UseRole";
 import { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link } from "react-router-dom";
@@ -11,11 +12,12 @@ const DriverManagement = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const { getDrivers, deleteDriver, pagination } = useDrivers();
+  const { removeRole } = useRole();
 
   const fetchDrivers = async () => {
     try {
       const res = await getDrivers(currentPage, pagination.pageSize);
-      setDriversData(res);  // Actualizamos el estado con el objeto completo de la respuesta
+      setDriversData(res); 
     } catch (error) {
       console.error("Error fetching drivers:", error);
       toast.error("Failed to load drivers.");
@@ -28,14 +30,14 @@ const DriverManagement = () => {
     fetchDrivers();
   }, [currentPage, pagination.pageSize]);
 
-  const handleDelete = (driverId) => {
+  const handleDelete = (driverId, userId) => {
     toast.info(
       <>
         <p>Are you sure you want to delete this driver?</p>
         <div className="flex justify-end">
           <Button
             className="mr-2 bg-red-500 text-white"
-            onClick={() => confirmDelete(driverId)}
+            onClick={() => confirmDelete(driverId, userId)} 
           >
             Delete
           </Button>
@@ -47,11 +49,18 @@ const DriverManagement = () => {
       { autoClose: false, closeButton: false }
     );
   };
+  
+  
 
-  const confirmDelete = async (driverId) => {
+  const confirmDelete = async (driverId, userId) => {
     try {
-      await deleteDriver(driverId);
-      fetchDrivers();
+      await removeRole({
+        userId: userId, 
+        roleName: "ROLE_DRIVER",
+      });
+  
+      await deleteDriver(driverId); 
+      fetchDrivers();  
       toast.dismiss();
       toast.success("Driver deleted successfully!");
     } catch (error) {
@@ -59,6 +68,7 @@ const DriverManagement = () => {
       toast.error("Error deleting driver.");
     }
   };
+  
 
   const cancelDelete = () => {
     toast.dismiss();
@@ -112,9 +122,13 @@ const DriverManagement = () => {
                     <Link to={`/dashboard/drivers/${driver.driverId}/edit`} className="flex items-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md shadow">
                       <FaEdit className="mr-2" /> Edit
                     </Link>
-                    <Button className="flex items-center bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md shadow" onClick={() => handleDelete(driver.driverId)}>
+                    <Button 
+                      className="flex items-center bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md shadow"
+                      onClick={() => handleDelete(driver.driverId, driver.userId)} 
+                    >
                       <FaTrash className="mr-2" /> Delete
                     </Button>
+
                   </td>
                 </tr>
               ))
