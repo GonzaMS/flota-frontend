@@ -4,10 +4,18 @@ import Loader from "@/components/common/Loader";
 import Pagination from "@/components/common/Pagination";
 import Table from "@/components/common/Table";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import useCars from "@/hooks/useCars";
-import useKilometers from "@/hooks/useKilometers";
+import { debounce } from "lodash";
 import { useCallback, useEffect, useState } from "react";
-import { FaPlus, FaTrashAlt } from "react-icons/fa";
+import { FaPause, FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -16,40 +24,103 @@ const CarManagement = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedCarDetails, setSelectedCarDetails] = useState(null);
-  const { getCars, deleteCar, pagination } = useCars();
-  const { getByCarId } = useKilometers();
+  const [carState, setCarState] = useState("ACTIVE");
+  const [licensePlateFilter, setLicensePlateFilter] = useState("");
+
+  const {
+    getCarByState,
+    getCarByLicensePlate,
+    deactivateCar,
+    activateCar,
+    pagination,
+    getCars,
+  } = useCars();
 
   const fetchCars = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await getCars(currentPage, pagination.pageSize);
-      setCarsData(res.items);
+      let res;
+      if (licensePlateFilter) {
+        res = await getCarByLicensePlate(
+          licensePlateFilter,
+          currentPage,
+          pagination.pageSize
+        );
+      } else {
+        res = await getCarByState(carState, currentPage, pagination.pageSize);
+      }
+
+      if (res.items && res.items.length > 0) {
+        setCarsData(res.items);
+      } else {
+        setCarsData([]);
+        if (licensePlateFilter) {
+          toast.info("No cars found with the specified license plate.");
+        }
+      }
     } catch (error) {
       console.error("Error fetching cars:", error);
       toast.error("Failed to load cars.");
     } finally {
       setLoading(false);
     }
-  }, [getCars, currentPage, pagination.pageSize]);
+  }, [currentPage, pagination.pageSize, carState]);
+
+  const debouncedFetchCars = useCallback(debounce(fetchCars, 500), [fetchCars]);
 
   useEffect(() => {
-    fetchCars();
-  }, [currentPage]);
+    debouncedFetchCars();
+    return () => {
+      debouncedFetchCars.cancel();
+    };
+  }, [carState, licensePlateFilter, currentPage, debouncedFetchCars]);
 
-  const handleDelete = (carId) => {
+  const handleLicensePlateChange = (e) => {
+    setLicensePlateFilter(e.target.value);
+  };
+
+  const handleDeactivate = (carId) => {
     toast.info(
       <>
-        <p>Are you sure you want to delete this car?</p>
+        <p>Are you sure you want to deactivate this car?</p>
         <div className="flex justify-end space-x-2">
           <Button
             className="bg-red-600 text-white py-1 px-3 rounded-md shadow-sm hover:bg-red-700 transition duration-200 ease-in-out text-xs"
             onClick={async () => {
-              await deleteCar(carId);
+              await deactivateCar(carId);
               fetchCars();
               toast.dismiss();
             }}
           >
-            <FaTrashAlt className="inline mr-1" /> Delete
+            <FaPause className="inline mr-1" /> Deactivate
+          </Button>
+          <Button
+            className="bg-gray-300 text-gray-700 py-1 px-3 rounded-md shadow-sm hover:bg-gray-400 transition duration-200 ease-in-out text-xs"
+            onClick={() => toast.dismiss()}
+          >
+            Cancel
+          </Button>
+        </div>
+      </>,
+      { autoClose: false, closeButton: false }
+    );
+  };
+
+  const handleActivate = (carId) => {
+    toast.info(
+      <>
+        <p>Are you sure you want to activate this car?</p>
+        <div className="flex justify-end space-x-2">
+          <Button
+            className="bg-green-600 text-white py-1 px-3 rounded-md shadow-sm hover:bg-green-700 transition duration-200 ease-in-out text-xs"
+            onClick={async () => {
+              const res = await activateCar(carId);
+              console.log(res);
+              fetchCars();
+              toast.dismiss();
+            }}
+          >
+            <FaPause className="inline mr-1" /> Activate
           </Button>
           <Button
             className="bg-gray-300 text-gray-700 py-1 px-3 rounded-md shadow-sm hover:bg-gray-400 transition duration-200 ease-in-out text-xs"
@@ -94,11 +165,36 @@ const CarManagement = () => {
         </Link>
       </div>
 
+      <div className="mb-6 flex space-x-4">
+        <Select onValueChange={(value) => setCarState(value)} value={carState}>
+          <SelectTrigger className="w-32">
+            <SelectValue placeholder="Filter by state" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ACTIVE">ACTIVE</SelectItem>
+            <SelectItem value="INACTIVE">INACTIVE</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Input
+          type="text"
+          value={licensePlateFilter}
+          onChange={handleLicensePlateChange}
+          placeholder="Search by License Plate"
+          className="px-4 py-2 border border-gray-300 rounded-md w-48"
+        />
+      </div>
+
       <Table
         headers={carHeaders}
         data={carsData}
         RowComponent={CarTableRow}
-        rowProps={{ onDelete: handleDelete, onViewDetails: handleViewDetails }}
+        rowProps={{
+          onDelete: handleDeactivate,
+          onViewDetails: handleViewDetails,
+          onActivate: handleActivate,
+          onDeactivate: handleDeactivate,
+        }}
       />
 
       <div className="flex justify-center mt-6">
