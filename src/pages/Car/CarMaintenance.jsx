@@ -8,7 +8,7 @@ import useMaintenances from "@/hooks/useMaintenances";
 import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaSearch } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -184,8 +184,11 @@ const CarMaintenance = () => {
 
         <Button
           onClick={handleFilterSubmit}
-          className="bg-indigo-600 text-white px-4"
-        ></Button>
+          className="bg-indigo-600 text-white px-4 flex items-center space-x-2"
+        >
+          <FaSearch className="inline" />
+          <span>Search</span>
+        </Button>
       </div>
 
       {maintenances.length === 0 ? (
@@ -193,12 +196,17 @@ const CarMaintenance = () => {
           Car maintenance records not found.
         </p>
       ) : (
-        <Table
-          headers={maintenanceHeaders}
-          data={maintenances}
-          RowComponent={MaintenanceTableRow}
-          rowProps={{ carNames, onDelete: handleDelete }}
-        />
+        <div className="border rounded-lg shadow-sm">
+          <div className="overflow-y-auto max-h-[600px]">
+            {" "}
+            <Table
+              headers={maintenanceHeaders}
+              data={maintenances}
+              RowComponent={MaintenanceTableRow}
+              rowProps={{ carNames, onDelete: handleDelete }}
+            />
+          </div>
+        </div>
       )}
 
       {maintenances.length > 0 && (
@@ -206,6 +214,7 @@ const CarMaintenance = () => {
           <Pagination
             pageCount={pagination.totalPages}
             onPageChange={handlePageClick}
+            forcePage={currentPage}
           />
         </div>
       )}
