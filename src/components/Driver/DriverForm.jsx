@@ -4,15 +4,14 @@ import { Label } from "@/components/ui/label";
 import useDrivers from "@/hooks/useDrivers";
 import useUsers from "@/hooks/useUsers";
 import useRole from "@/hooks/UseRole";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { AiOutlineArrowLeft } from "react-icons/ai";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const DriverForm = () => {
   const { driverId } = useParams();
-  const { getById, createDriver, updateDriver } = useDrivers();
-  const [usersFetched, setUsersFetched] = useState(false);
+  const { getByIdDriver, createDriver, updateDriver } = useDrivers();
   const { getAllUsers } = useUsers();
   const { addRole } = useRole();
   const navigate = useNavigate();
@@ -26,10 +25,19 @@ const DriverForm = () => {
     driverLicenseExpirationDate: "",
   });
 
-  const fetchDriverData = useCallback(async () => {
-    if (!driverId) return;
+  const fetchUsers = async () => {
     try {
-      const res = await getById(driverId);
+      const { items } = await getAllUsers();
+      setUsers(items.filter(user => user.active));
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      toast.error("Failed to fetch users.");
+    }
+  };
+
+  const fetchDriverData = async () => {
+    try {
+      const res = await getByIdDriver(driverId);
       setDriverData({
         userId: res.userId,
         driverName: res.driverName,
@@ -41,24 +49,16 @@ const DriverForm = () => {
       console.error("Error fetching driver data:", error);
       toast.error("Failed to fetch driver data.");
     }
-  }, [driverId, getById]);
+  };
 
-  const fetchUsers = useCallback(async () => {
-    if (usersFetched) return; 
-    try {
-      const { items } = await getAllUsers();
-      setUsers(items.filter(user => user.active));
-      setUsersFetched(true); 
-    } catch (error) {
-      console.error("Error fetching users:", error);
-      toast.error("Failed to fetch users.");
-    }
-  }, [getAllUsers, usersFetched]);
-  
   useEffect(() => {
-    fetchDriverData();
     fetchUsers();
-  }, [fetchDriverData, fetchUsers]);
+  }, []);
+
+  useEffect(() => {
+    if (!driverId) return;
+    fetchDriverData();
+  }, [driverId]);
 
   const handleUserChange = (e) => {
     const selectedUserId = parseInt(e.target.value);
@@ -81,7 +81,6 @@ const DriverForm = () => {
       } else {
         await createDriver(driverRequest);
         await addRole({ userId: driverData.userId, roleName: "ROLE_DRIVER" });
-
       }
 
       navigate("/dashboard/drivers");
