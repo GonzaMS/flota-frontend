@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import useCars from "@/hooks/useCars";
+import useKilometers from "@/hooks/useKilometers";
 import { debounce } from "lodash";
 import { useCallback, useEffect, useState } from "react";
 import { FaPause, FaPlus } from "react-icons/fa";
@@ -33,47 +34,60 @@ const CarManagement = () => {
     deactivateCar,
     activateCar,
     pagination,
-    getCars,
   } = useCars();
+
+  const { getByCarId } = useKilometers();
 
   const fetchCars = useCallback(async () => {
     setLoading(true);
-    try {
-      let res;
-      if (licensePlateFilter) {
-        res = await getCarByLicensePlate(
-          licensePlateFilter,
-          currentPage,
-          pagination.pageSize
-        );
-      } else {
-        res = await getCarByState(carState, currentPage, pagination.pageSize);
-      }
 
-      if (res.items && res.items.length > 0) {
+    const showToastMessage = (message) => {
+      setCarsData([]);
+      toast.info(message);
+    };
+
+    const noCarsMessage = licensePlateFilter
+      ? `No cars found with the license plate "${licensePlateFilter}".`
+      : `No cars found with the state "${carState}".`;
+
+    try {
+      const res = licensePlateFilter
+        ? await getCarByLicensePlate(
+            licensePlateFilter,
+            currentPage,
+            pagination.pageSize
+          )
+        : await getCarByState(carState, currentPage, pagination.pageSize);
+
+      if (res && res.items && res.items.length > 0) {
         setCarsData(res.items);
       } else {
-        setCarsData([]);
-        if (licensePlateFilter) {
-          toast.info("No cars found with the specified license plate.");
-        }
+        showToastMessage(noCarsMessage);
       }
     } catch (error) {
-      console.error("Error fetching cars:", error);
-      toast.error("Failed to load cars.");
+      if (error.response?.status === 404) {
+        showToastMessage(noCarsMessage);
+      } else {
+        console.error("Error fetching cars:", error);
+        toast.error("Failed to load cars.");
+      }
     } finally {
       setLoading(false);
     }
-  }, [currentPage, pagination.pageSize, carState]);
+  }, [licensePlateFilter, currentPage, carState, pagination.pageSize]);
 
-  const debouncedFetchCars = useCallback(debounce(fetchCars, 500), [fetchCars]);
+  const debouncedFetchCars = useCallback(debounce(fetchCars, 500), [
+    licensePlateFilter,
+    carState,
+    currentPage,
+  ]);
 
   useEffect(() => {
     debouncedFetchCars();
     return () => {
       debouncedFetchCars.cancel();
     };
-  }, [carState, licensePlateFilter, currentPage, debouncedFetchCars]);
+  }, [licensePlateFilter, carState, currentPage, debouncedFetchCars]);
 
   const handleLicensePlateChange = (e) => {
     setLicensePlateFilter(e.target.value);
@@ -90,6 +104,7 @@ const CarManagement = () => {
               await deactivateCar(carId);
               fetchCars();
               toast.dismiss();
+              toast.success("Car deactivated successfully");
             }}
           >
             <FaPause className="inline mr-1" /> Deactivate
@@ -114,10 +129,10 @@ const CarManagement = () => {
           <Button
             className="bg-green-600 text-white py-1 px-3 rounded-md shadow-sm hover:bg-green-700 transition duration-200 ease-in-out text-xs"
             onClick={async () => {
-              const res = await activateCar(carId);
-              console.log(res);
+              await activateCar(carId);
               fetchCars();
               toast.dismiss();
+              toast.success("Car activated successfully");
             }}
           >
             <FaPause className="inline mr-1" /> Activate
@@ -185,22 +200,30 @@ const CarManagement = () => {
         />
       </div>
 
-      <Table
-        headers={carHeaders}
-        data={carsData}
-        RowComponent={CarTableRow}
-        rowProps={{
-          onDelete: handleDeactivate,
-          onViewDetails: handleViewDetails,
-          onActivate: handleActivate,
-          onDeactivate: handleDeactivate,
-        }}
-      />
+      <div className="border rounded-lg shadow-sm">
+        <div className="overflow-y-auto max-h-[600px]">
+          {" "}
+          <table className="min-w-full bg-white">
+            <Table
+              headers={carHeaders}
+              data={carsData}
+              RowComponent={CarTableRow}
+              rowProps={{
+                onDelete: handleDeactivate,
+                onViewDetails: handleViewDetails,
+                onActivate: handleActivate,
+                onDeactivate: handleDeactivate,
+              }}
+            />
+          </table>
+        </div>
+      </div>
 
       <div className="flex justify-center mt-6">
         <Pagination
           pageCount={pagination.totalPages}
           onPageChange={(e) => setCurrentPage(e.selected)}
+          forcePage={currentPage}
         />
       </div>
 

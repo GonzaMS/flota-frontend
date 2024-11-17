@@ -18,15 +18,16 @@ const CarTableRow = ({ item, onViewDetails, onActivate, onDeactivate }) => {
         )
       )}
       <td className="px-6 py-4 whitespace-nowrap text-base font-medium flex space-x-1">
-        <Link
-          to={`/dashboard/cars/${item.id}/edit`}
-          className="flex items-center bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-1 rounded shadow-sm text-xs transition duration-150 ease-in-out"
-        >
-          <FaEdit className="mr-0.5" /> Edit
-        </Link>
+        {isActive && (
+          <Link
+            to={`/dashboard/cars/${item.id}/edit`}
+            className="flex items-center bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-1 rounded shadow-sm text-xs transition duration-150 ease-in-out"
+          >
+            <FaEdit className="mr-0.5" /> Edit
+          </Link>
+        )}
 
         {isActive ? (
-          // Botón de desactivar cuando el coche está activo
           <Button
             className="flex items-center bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded shadow-sm text-xs transition duration-150 ease-in-out"
             onClick={() => onDeactivate(item.id)}
@@ -35,7 +36,7 @@ const CarTableRow = ({ item, onViewDetails, onActivate, onDeactivate }) => {
           </Button>
         ) : (
           <Button
-            className="flex items-center bg-teal-600 hover:bg-teal-700 text-white px-2 py-1 rounded shadow-sm text-xs transition duration-150 ease-in-out"
+            className="flex items-center bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded shadow-sm text-xs transition duration-150 ease-in-out"
             onClick={() => onActivate(item.id)}
           >
             <FaCheck className="mr-0.5" /> Activate
@@ -43,10 +44,10 @@ const CarTableRow = ({ item, onViewDetails, onActivate, onDeactivate }) => {
         )}
 
         <Button
-          className="flex items-center bg-teal-600 hover:bg-teal-700 text-white px-2 py-1 rounded shadow-sm text-xs transition duration-150 ease-in-out"
+          className="flex items-center bg-gray-600 hover:bg-gray-700 text-white px-2 py-1 rounded shadow-sm text-xs transition duration-150 ease-in-out"
           onClick={() => onViewDetails(item.id)}
         >
-          <FaEye className="mr-0.5" /> View Details
+          <FaEye className="mr-0.5" /> Details
         </Button>
       </td>
     </tr>

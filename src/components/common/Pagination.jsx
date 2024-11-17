@@ -5,6 +5,7 @@ const Pagination = ({
   onPageChange,
   marginPagesDisplayed = 2,
   pageRangeDisplayed = 3,
+  forcePage,
 }) => {
   return (
     <ReactPaginate
@@ -15,6 +16,7 @@ const Pagination = ({
       marginPagesDisplayed={marginPagesDisplayed}
       pageRangeDisplayed={pageRangeDisplayed}
       onPageChange={onPageChange}
+      forcePage={forcePage}
       containerClassName="flex items-center space-x-2 text-sm font-medium"
       pageClassName="page-item"
       pageLinkClassName="page-link px-3 py-2 border border-gray-300 rounded-md hover:bg-indigo-200 hover:text-indigo-800 transition-colors"
