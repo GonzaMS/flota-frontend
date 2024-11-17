@@ -1,8 +1,6 @@
 import { Button } from "@/components/ui/button";
 import useDrivingHistory from "@/hooks/useDrivingHistory";
 import useAssignedOrders from "@/hooks/useAssignedOrders";
-import useDrivers from "@/hooks/useDrivers";
-import useCars from "@/hooks/useCars";
 import { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link } from "react-router-dom";
@@ -12,15 +10,11 @@ import Pagination from "@/components/common/Pagination";
 const DriverHistoryManagement = () => {
   const [historyData, setHistoryData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [drivers, setDrivers] = useState([]);
-  const [cars, setCars] = useState([]);
   const [assigned, setAssigned] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const { getDrivingHistories, deleteDrivingHistory, pagination } =
     useDrivingHistory();
   const { getAssignedOrders } = useAssignedOrders();
-  const { getDrivers } = useDrivers();
-  const { getCars } = useCars();
 
   const fetchHistory = async () => {
     try {
@@ -34,16 +28,6 @@ const DriverHistoryManagement = () => {
     }
   };
 
-  const fetchDriversAndCars = async () => {
-    try {
-      const driversData = await getDrivers();
-      const carsData = await getCars();
-      setDrivers(driversData.items);
-      setCars(carsData.items);
-    } catch (error) {
-      console.error("Error fetching drivers or cars:", error);
-    }
-  };
 
   const fetchAssignedOrdersData = async () => {
     try {
@@ -56,7 +40,6 @@ const DriverHistoryManagement = () => {
 
   useEffect(() => {
     fetchHistory();
-    fetchDriversAndCars();
     fetchAssignedOrdersData();
   }, [currentPage, pagination.pageSize]);
 
@@ -151,16 +134,7 @@ const DriverHistoryManagement = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {historyData.map((history, index) => {
-              const assignedOrder = assigned.find(
-                (a) => a.assignedOrderId === history.assignedOrderId
-              );
-              const driver = drivers.find(
-                (d) => d.driverId === assignedOrder?.driverId
-              );
-              const car = cars.find((c) => c.id === assignedOrder?.carId);
-
-              return (
+            {historyData.map((history, index) =>  (
                 <tr
                   key={index}
                   className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
@@ -172,10 +146,10 @@ const DriverHistoryManagement = () => {
                     {history.kmDriven}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
-                    {driver ? driver.driverName : "N/A"}
+                    {history.driverName}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
-                    {car ? car.brand : "N/A"}
+                    {history.carBrand}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-base font-medium flex space-x-3">
                     <Link
@@ -194,8 +168,9 @@ const DriverHistoryManagement = () => {
                     </Button>
                   </td>
                 </tr>
-              );
-            })}
+              )
+            )
+          }
           </tbody>
         </table>
       </div>

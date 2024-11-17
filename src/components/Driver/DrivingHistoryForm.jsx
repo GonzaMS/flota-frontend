@@ -18,6 +18,10 @@ const DriverHistoryForm = () => {
   const { getCars, cars } = useCars(); 
   const [historyData, setHistoryData] = useState({
     createdAt: "", 
+    driverName: "",
+    driverLicense: "",
+    carBrand: "",
+    carPlate: "",
     kmDriven: "",
     assignedOrderId: "",
   });
@@ -70,6 +74,26 @@ const DriverHistoryForm = () => {
       await getCars(); 
     } catch (error) {
       console.error("Error fetching cars:", error);
+    }
+  };
+
+  const handleOrderChange = (e) => {
+    const selectedOrderId = parseInt(e.target.value);
+    const selectedOrder = assignedOrders.find(
+      (order) => order.assignedOrderId === selectedOrderId
+    );
+  
+    if (selectedOrder) {
+      const driver = drivers.find(d => d.driverId === selectedOrder.driverId);
+      const car = cars.find(c => c.id === selectedOrder.carId);
+      setHistoryData((prevData) => ({
+        ...prevData,
+        assignedOrderId: selectedOrderId,
+        driverName: driver ? driver.driverName : "",
+        driverLicense: driver ? driver.driverLicense : "",
+        carBrand: car ? car.brand : "",
+        carPlate: car ? car.licensePlate : "",
+      }));
     }
   };
 
@@ -147,13 +171,13 @@ const DriverHistoryForm = () => {
             <select
               id="assignedOrderId"
               value={historyData.assignedOrderId}
-              onChange={(e) =>
-                setHistoryData({ ...historyData, assignedOrderId: e.target.value })
-              }
+              onChange={handleOrderChange}
               required
               className="w-full mt-1 p-2 border rounded focus:border-indigo-500 focus:outline-none"
             >
-              <option value="">Select a Driver</option>
+              <option value="" disabled>
+                Select a Driver
+              </option>
               {assignedOrders.map((order) => {
                 const driver = drivers.find(d => d.driverId === order.driverId);
                 const car = cars.find(c => c.id === order.carId);
