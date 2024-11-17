@@ -65,7 +65,7 @@ const DriverHistoryForm = () => {
     try {
       await getDrivers(); 
     } catch (error) {
-      console.error("Error fetching drivers:", error);
+      console.error("Error fetching drivers: ", error);
     }
   };
 
@@ -73,7 +73,7 @@ const DriverHistoryForm = () => {
     try {
       await getCars(); 
     } catch (error) {
-      console.error("Error fetching cars:", error);
+      console.error("Error fetching cars: ", error);
     }
   };
 
