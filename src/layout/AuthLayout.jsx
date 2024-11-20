@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import logo from "../assets/logo.png";
 
 const AuthLayout = () => {
@@ -10,12 +10,12 @@ const AuthLayout = () => {
             <img src={logo} alt="Logo" className="h-24 w-auto" />
           </div>
           <div className="space-x-8">
-            <a href="/" className="text-lg">
+            <Link to="/" className="text-lg">
               Login
-            </a>
-            <a href="/register" className="text-lg">
+            </Link>
+            <Link to="/register" className="text-lg">
               Register
-            </a>
+            </Link>
           </div>
         </nav>
 

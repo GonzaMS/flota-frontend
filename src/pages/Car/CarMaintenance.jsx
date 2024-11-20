@@ -5,6 +5,7 @@ import Table from "@/components/common/Table";
 import { Button } from "@/components/ui/button";
 import useCars from "@/hooks/useCars";
 import useMaintenances from "@/hooks/useMaintenances";
+import { getUserRole } from "@/utils/getRole";
 import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -23,6 +24,12 @@ const CarMaintenance = () => {
     pagination,
   } = useMaintenances();
   const { getCars } = useCars();
+
+  const hasRole = (requiredRole) => {
+    const roles = getUserRole();
+    if (!roles) return false;
+    return roles.includes(requiredRole);
+  };
 
   const [carNames, setCarNames] = useState({});
   const [cars, setCars] = useState([]);
@@ -150,12 +157,14 @@ const CarMaintenance = () => {
     <div className="min-h-screen p-6 bg-gray-100">
       <div className="mb-6 flex justify-between items-center pt-20">
         <h2 className="text-3xl font-bold text-indigo-700">Car Maintenance</h2>
-        <Link to="/dashboard/maintenance/new">
-          <Button className="bg-indigo-500 text-white py-1.5 px-5 rounded-md shadow-md hover:bg-indigo-600 transition duration-200 ease-in-out text-sm flex items-center space-x-2">
-            <FaPlus className="inline" />
-            <span>Add New Maintenance</span>
-          </Button>
-        </Link>
+        {hasRole("ROLE_ADMIN") && (
+          <Link to="/dashboard/maintenance/new">
+            <Button className="bg-indigo-500 text-white py-1.5 px-5 rounded-md shadow-md hover:bg-indigo-600 transition duration-200 ease-in-out text-sm flex items-center space-x-2">
+              <FaPlus className="inline" />
+              <span>Add New Maintenance</span>
+            </Button>
+          </Link>
+        )}
       </div>
 
       <div className="mb-4 flex space-x-4">
@@ -203,7 +212,7 @@ const CarMaintenance = () => {
               headers={maintenanceHeaders}
               data={maintenances}
               RowComponent={MaintenanceTableRow}
-              rowProps={{ carNames, onDelete: handleDelete }}
+              rowProps={{ carNames, onDelete: handleDelete, hasRole }}
             />
           </div>
         </div>

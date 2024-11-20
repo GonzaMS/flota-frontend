@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import useCars from "@/hooks/useCars";
 import useKilometers from "@/hooks/useKilometers";
+import { getUserRole } from "@/utils/getRole";
 import { debounce } from "lodash";
 import { useCallback, useEffect, useState } from "react";
 import { FaPause, FaPlus } from "react-icons/fa";
@@ -27,6 +28,12 @@ const CarManagement = () => {
   const [selectedCarDetails, setSelectedCarDetails] = useState(null);
   const [carState, setCarState] = useState("ACTIVE");
   const [licensePlateFilter, setLicensePlateFilter] = useState("");
+
+  const hasRole = (requiredRole) => {
+    const roles = getUserRole();
+    if (!roles) return false;
+    return roles.includes(requiredRole);
+  };
 
   const {
     getCarByState,
@@ -172,12 +179,14 @@ const CarManagement = () => {
     <div className="min-h-screen p-6 bg-gray-100">
       <div className="mb-6 flex justify-between items-center pt-20">
         <h2 className="text-3xl font-bold text-indigo-700">Car Management</h2>
-        <Link to="/dashboard/cars/new">
-          <Button className="bg-indigo-500 text-white py-1.5 px-5 rounded-md shadow-md hover:bg-indigo-600 transition duration-200 ease-in-out text-sm flex items-center space-x-2">
-            <FaPlus className="inline" />
-            <span>Add New Car</span>
-          </Button>
-        </Link>
+        {hasRole("ROLE_ADMIN") && ( // Verificar si el usuario tiene el rol 'ADMIN'
+          <Link to="/dashboard/cars/new">
+            <Button className="bg-indigo-500 text-white py-1.5 px-5 rounded-md shadow-md hover:bg-indigo-600 transition duration-200 ease-in-out text-sm flex items-center space-x-2">
+              <FaPlus className="inline" />
+              <span>Add New Car</span>
+            </Button>
+          </Link>
+        )}
       </div>
 
       <div className="mb-6 flex space-x-4">
@@ -213,6 +222,7 @@ const CarManagement = () => {
                 onViewDetails: handleViewDetails,
                 onActivate: handleActivate,
                 onDeactivate: handleDeactivate,
+                hasRole,
               }}
             />
           </table>

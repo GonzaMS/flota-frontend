@@ -1,27 +1,30 @@
-import { HashRouter as BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import DriverForm from "./components/Driver/DriverForm";
-import DrivingHistoryForm from "./components/Driver/DrivingHistoryForm";
-import DriverIncidentsForm from "./components/Driver/DriverIncidentsForm";
-import DriverAssignerForm from "./components/Driver/DriverAssignerForm";
-import DriverManagement from "./pages/Driver/DriverManagement";
-import DriverHistoryManagement from "./pages/Driver/DriverHistoryManagement";
-import DriverIncidentsManagement from "./pages/Driver/DriverIncidentsManagement";
-import DriverAssignerManagement from "./pages/Driver/DriverAssignerManagement";
+import IncidentForm from "./components/car/car_incidents/IncidentForm";
+import MaintenanceForm from "./components/car/car_maintenance/MaintenanceForm";
 import CarForm from "./components/car/car_management/CarForm";
-import MaintenanceForm from "./components/car/MaintenanceForm";
 import Error404 from "./components/common/Error404";
 import Error500 from "./components/common/Error500";
+import DriverAssignerForm from "./components/Driver/DriverAssignerForm";
+import DriverForm from "./components/Driver/DriverForm";
+import DriverIncidentsForm from "./components/Driver/DriverIncidentsForm";
+import DrivingHistoryForm from "./components/Driver/DrivingHistoryForm";
 import AuthLayout from "./layout/AuthLayout";
 import DashboardLayout from "./layout/DashboardLayout";
+import CarIncidents from "./pages/car/CarIncidents";
 import CarMaintenance from "./pages/car/CarMaintenance";
 import CarManagement from "./pages/car/CarManagement";
 import Dashboard from "./pages/Dashboard";
+import DriverAssignerManagement from "./pages/Driver/DriverAssignerManagement";
+import DriverHistoryManagement from "./pages/Driver/DriverHistoryManagement";
+import DriverIncidentsManagement from "./pages/Driver/DriverIncidentsManagement";
+import DriverManagement from "./pages/Driver/DriverManagement";
 import ConfirmAccount from "./pages/login/ConfirmAccount";
 import ForgotPassword from "./pages/login/ForgotPassword";
 import Login from "./pages/login/Login";
 import Register from "./pages/login/Register";
+import ResetPassword from "./pages/login/ResetPassword";
 import ProtectedRoute from "./routes-app/ProtectedRoutes";
 
 function App() {
@@ -33,8 +36,9 @@ function App() {
           <Route path="/" element={<AuthLayout />}>
             <Route index element={<Login />} />
             <Route path="register" element={<Register />} />
-            <Route path="forgot_password" element={<ForgotPassword />} />
             <Route path="confirm_account/:code" element={<ConfirmAccount />} />
+            <Route path="forgot_password" element={<ForgotPassword />} />
+            <Route path="reset_password/:token" element={<ResetPassword />} />
           </Route>
 
           {/* Protected routes for the dashboard */}
@@ -101,6 +105,16 @@ function App() {
               <Route
                 path="/dashboard/maintenance/:maintenanceId/edit"
                 element={<MaintenanceForm />}
+              />
+              {/* Car Incidents */}
+              <Route path="/dashboard/incidents" element={<CarIncidents />} />
+              <Route
+                path="/dashboard/incidents/new"
+                element={<IncidentForm />}
+              />
+              <Route
+                path="/dashboard/incidents/:incidentId/edit"
+                element={<IncidentForm />}
               />
             </Route>
           </Route>

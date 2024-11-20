@@ -30,6 +30,11 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     },
     { name: "Car Maintenance", icon: FaWrench, path: "/dashboard/maintenance" },
     {
+      name: "Car Incidents",
+      icon: FaExclamationTriangle,
+      path: "/dashboard/incidents",
+    },
+    {
       name: "Driver Activity",
       icon: FaClipboardCheck,
       path: "#",
@@ -37,13 +42,12 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     },
   ];
 
-  // Usa useMatch para cada ruta principal
   const matchCarManagement = useMatch("/dashboard/cars");
   const matchDriverManagement = useMatch("/dashboard/drivers");
   const matchTravelOrdersManagement = useMatch("/dashboard/orders");
   const matchCarMaintenance = useMatch("/dashboard/maintenance");
+  const matchCarIncidents = useMatch("/dashboard/incidents");
 
-  // Verificar si estamos en una de las páginas de Driver Activity usando useMatch
   const matchDriverHistory = useMatch("/dashboard/driver-history");
   const matchDriverIncidents = useMatch("/dashboard/driver-incidents");
   const matchDriverAssigner = useMatch("/dashboard/driver-assigner");
@@ -51,12 +55,12 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
   const isDriverActivityActive =
     matchDriverHistory || matchDriverIncidents || matchDriverAssigner;
 
-  // Crea un objeto de coincidencias para las rutas principales
   const matchItems = {
     "Car Management": matchCarManagement,
     "Driver Management": matchDriverManagement,
     "Travel Orders Management": matchTravelOrdersManagement,
     "Car Maintenance": matchCarMaintenance,
+    "Car Incidents": matchCarIncidents,
   };
 
   return (
@@ -164,7 +168,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
       {/* Generate Report Button */}
       {isOpen && (
-        <div className="mt-auto">
+        <div className="mt-auto ml-2">
           <GenerateReportButton />
         </div>
       )}
