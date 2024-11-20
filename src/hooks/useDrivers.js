@@ -60,6 +60,18 @@ const useDrivers = () => {
     );
   };
 
+  const getDriversByName = async (name, page = 0, pageSize = 10) => {
+    const token = getToken(); 
+    return handleRequest(() =>
+      api.get(`${DRIVERS_URL}/name/${name}?pageNumber=${page}&pageSize=${pageSize}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+    );
+  };
+  
+
   const createDriver = async (driver) => {
     const token = getToken();
     return handleRequest(() =>
@@ -100,6 +112,7 @@ const useDrivers = () => {
     isLoading,
     getDrivers,
     getByIdDriver,
+    getDriversByName,
     createDriver,
     updateDriver,
     deleteDriver,

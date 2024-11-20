@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import useDrivers from "@/hooks/useDrivers";
 import useRole from "@/hooks/UseRole";
+import { getUserRole } from "@/utils/getRole";
 import { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link } from "react-router-dom";
@@ -11,16 +12,45 @@ const DriverManagement = () => {
   const [driversData, setDriversData] = useState({ items: [] });
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
-  const { getDrivers, deleteDriver, pagination } = useDrivers();
+  const [driverNameFilter, setDriverNameFilter] = useState("");
+  const { getDrivers, deleteDriver, getDriversByName, pagination } = useDrivers();
   const { removeRole } = useRole();
 
+  const hasRole = (requiredRole) => {
+    const roles = getUserRole();
+    if (!roles) return false;
+    return roles.includes(requiredRole);
+  };
+
   const fetchDrivers = async () => {
+    setLoading(true);
+  
+    const showToastMessage = (message) => {
+      setDriversData({ items: [] }); 
+      toast.info(message); 
+    };
+  
+    const noDriversMessage = driverNameFilter
+      ? `No drivers found with the name "${driverNameFilter}".`
+      : `No drivers found.`;
+  
     try {
-      const res = await getDrivers(currentPage, pagination.pageSize);
-      setDriversData(res); 
+      const res = driverNameFilter
+        ? await getDriversByName(driverNameFilter, currentPage, pagination.pageSize)
+        : await getDrivers(currentPage, pagination.pageSize);
+  
+      if (res && res.items && res.items.length > 0) {
+        setDriversData(res);
+      } else {
+        showToastMessage(noDriversMessage); 
+      }
     } catch (error) {
-      console.error("Error fetching drivers:", error);
-      toast.error("Failed to load drivers.");
+      if (error.response?.status === 404) {
+        showToastMessage(noDriversMessage);
+      } else {
+        console.error("Error fetching drivers:", error);
+        toast.error("Failed to load drivers."); 
+      }
     } finally {
       setLoading(false);
     }
@@ -49,16 +79,10 @@ const DriverManagement = () => {
       { autoClose: false, closeButton: false }
     );
   };
-  
-  
 
   const confirmDelete = async (driverId, userId) => {
     try {
-      await removeRole({
-        userId: userId, 
-        roleName: "ROLE_DRIVER",
-      });
-  
+      await removeRole({ userId: userId, roleName: "ROLE_DRIVER" });
       await deleteDriver(driverId); 
       fetchDrivers();  
       toast.dismiss();
@@ -68,7 +92,6 @@ const DriverManagement = () => {
       toast.error("Error deleting driver.");
     }
   };
-  
 
   const cancelDelete = () => {
     toast.dismiss();
@@ -76,6 +99,12 @@ const DriverManagement = () => {
 
   const handlePageClick = (event) => {
     setCurrentPage(event.selected);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      fetchDrivers();
+    }
   };
 
   if (loading) {
@@ -90,11 +119,25 @@ const DriverManagement = () => {
     <div className="h-screen flex flex-col bg-gray-100">
       <div className="mb-6 flex justify-between items-center pt-20 px-6">
         <h2 className="text-3xl font-bold text-indigo-700">Driver Management</h2>
+        {hasRole("ROLE_ADMIN") && (
         <Link to="/dashboard/drivers/new">
           <Button className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded shadow">
             Add New Driver
           </Button>
         </Link>
+        )}
+      </div>
+
+      {/* Filtro de búsqueda por nombre */}
+      <div className="mb-4 px-6">
+        <input
+          type="text"
+          value={driverNameFilter}
+          onChange={(e) => setDriverNameFilter(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Search by Name"
+          className="px-4 py-2 border border-gray-400 rounded-md w-48"
+        />
       </div>
 
       <div className="flex-grow overflow-y-auto bg-white shadow-md sm:rounded-lg p-4 mx-6 min-h-0">
@@ -105,7 +148,9 @@ const DriverManagement = () => {
               <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">License Number</th>
               <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">State</th>
               <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">License Expiration</th>
+              {hasRole("ROLE_ADMIN") && (
               <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">Actions</th>
+              )}
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -118,6 +163,7 @@ const DriverManagement = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
                     {new Date(driver.driverLicenseExpirationDate).toLocaleDateString()}
                   </td>
+                  {hasRole("ROLE_ADMIN") && (
                   <td className="px-6 py-4 whitespace-nowrap text-base font-medium flex space-x-3">
                     <Link to={`/dashboard/drivers/${driver.driverId}/edit`} className="flex items-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md shadow">
                       <FaEdit className="mr-2" /> Edit
@@ -128,8 +174,7 @@ const DriverManagement = () => {
                     >
                       <FaTrash className="mr-2" /> Delete
                     </Button>
-
-                  </td>
+                  </td>)}
                 </tr>
               ))
             ) : (

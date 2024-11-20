@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import useDriverIncidents from "@/hooks/useDriverIncidents";
 import useDrivers from "@/hooks/useDrivers"; 
+import { getUserRole } from "@/utils/getRole";
 import { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link } from "react-router-dom";
@@ -14,6 +15,12 @@ const DriverIncidentsManagement = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const { getIncidents, deleteIncident, pagination, isLoading } = useDriverIncidents();
   const { getDrivers } = useDrivers(); 
+
+  const hasRole = (requiredRole) => {
+    const roles = getUserRole();
+    if (!roles) return false;
+    return roles.includes(requiredRole);
+  };
 
   const fetchIncidents = async () => {
     try {
@@ -95,11 +102,12 @@ const DriverIncidentsManagement = () => {
     <div className="h-screen flex flex-col bg-gray-100">
       <div className="mb-6 flex justify-between items-center pt-20 px-6">
         <h2 className="text-3xl font-bold text-indigo-700">Driver Incidents Management</h2>
+        {hasRole("ROLE_ADMIN") && (
         <Link to="/dashboard/driver-incidents/new">
           <Button className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded shadow">
             Add New Incident
           </Button>
-        </Link>
+        </Link>)}
       </div>
 
       <div className="flex-grow overflow-y-auto bg-white shadow-md sm:rounded-lg p-4 mx-6 min-h-0">
@@ -110,7 +118,9 @@ const DriverIncidentsManagement = () => {
               <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">Type</th>
               <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">Date</th>
               <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">Driver Name</th> 
+              {hasRole("ROLE_ADMIN") && (
               <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">Actions</th>
+              )}
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -122,6 +132,7 @@ const DriverIncidentsManagement = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">{incident.incidentType}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">{new Date(incident.createdAt).toLocaleDateString()}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">{driver ? driver.driverName : 'Unknown'}</td>
+                  {hasRole("ROLE_ADMIN") && (
                   <td className="px-6 py-4 whitespace-nowrap text-base font-medium flex space-x-3">
                     <Link
                       to={`/dashboard/driver-incidents/${incident.incidentId}/edit`}
@@ -137,7 +148,7 @@ const DriverIncidentsManagement = () => {
                       <FaTrash className="mr-2" />
                       Delete
                     </Button>
-                  </td>
+                  </td>)}
                 </tr>
               );
             })}
