@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import useDrivingHistory from "@/hooks/useDrivingHistory";
 import useAssignedOrders from "@/hooks/useAssignedOrders";
+import { getUserRole } from "@/utils/getRole";
 import { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link } from "react-router-dom";
@@ -16,6 +17,12 @@ const DriverHistoryManagement = () => {
     useDrivingHistory();
   const { getAssignedOrders } = useAssignedOrders();
 
+  const hasRole = (requiredRole) => {
+    const roles = getUserRole();
+    if (!roles) return false;
+    return roles.includes(requiredRole);
+  };
+
   const fetchHistory = async () => {
     try {
       const res = await getDrivingHistories(currentPage, pagination.pageSize);
@@ -27,7 +34,6 @@ const DriverHistoryManagement = () => {
       toast.error("Failed to load driving history.");
     }
   };
-
 
   const fetchAssignedOrdersData = async () => {
     try {
@@ -105,11 +111,13 @@ const DriverHistoryManagement = () => {
         <h2 className="text-3xl font-bold text-indigo-700">
           Driving History Management
         </h2>
-        <Link to="/dashboard/driver-history/new">
-          <Button className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded shadow">
-            Add New Driving History
-          </Button>
-        </Link>
+        {hasRole("ROLE_ADMIN") && (
+          <Link to="/dashboard/driver-history/new">
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded shadow">
+              Add New Driving History
+            </Button>
+          </Link>
+        )}
       </div>
 
       <div className="flex-grow overflow-y-auto bg-white shadow-md sm:rounded-lg p-4 mx-6 min-h-0">
@@ -128,30 +136,34 @@ const DriverHistoryManagement = () => {
               <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
                 Car Brand
               </th>
-              <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
-                Actions
-              </th>
+              {hasRole("ROLE_ADMIN") && (
+                <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
+                  Actions
+                </th>
+              )}
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {historyData.map((history, index) =>  (
-                <tr
-                  key={index}
-                  className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
-                >
-                  <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
-                    {new Date(history.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
-                    {history.kmDriven}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
-                    {history.driverName}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
-                    {history.carBrand}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-base font-medium flex space-x-3">
+            {historyData.map((history, index) => (
+              <tr
+                key={index}
+                className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
+              >
+                <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
+                  {new Date(history.createdAt).toLocaleDateString()}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
+                  {history.kmDriven}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
+                  {history.driverName}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
+                  {history.carBrand}
+                </td>
+                {hasRole("ROLE_ADMIN") && (
+                <td className="px-6 py-4 whitespace-nowrap text-base font-medium flex space-x-3">
+                  
                     <Link
                       to={`/dashboard/driver-history/${history.drivingHistoryId}/edit`}
                       className="flex items-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md shadow"
@@ -166,11 +178,9 @@ const DriverHistoryManagement = () => {
                       <FaTrash className="mr-2" />
                       Delete
                     </Button>
-                  </td>
-                </tr>
-              )
-            )
-          }
+                </td>)}
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

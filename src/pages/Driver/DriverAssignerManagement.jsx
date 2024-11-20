@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import useAssignedOrder from "@/hooks/useAssignedOrders";
 import useDrivers from "@/hooks/useDrivers";
+import { getUserRole } from "@/utils/getRole";
 import useCars from "@/hooks/useCars";
 import { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
@@ -18,6 +19,12 @@ const DriverAssignerManagement = () => {
     useAssignedOrder();
   const { getDrivers } = useDrivers();
   const { getCars } = useCars();
+
+  const hasRole = (requiredRole) => {
+    const roles = getUserRole();
+    if (!roles) return false;
+    return roles.includes(requiredRole);
+  };
 
   const fetchAssignedOrders = async () => {
     try {
@@ -101,11 +108,13 @@ const DriverAssignerManagement = () => {
         <h2 className="text-3xl font-bold text-indigo-700">
           Assigned Orders Management
         </h2>
-        <Link to="/dashboard/driver-assigner/new">
-          <Button className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded shadow">
-            Add New Assigned Order
-          </Button>
-        </Link>
+        {hasRole("ROLE_ADMIN") && (
+          <Link to="/dashboard/driver-assigner/new">
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded shadow">
+              Add New Assigned Order
+            </Button>
+          </Link>
+        )}
       </div>
 
       <div className="flex-grow overflow-y-auto bg-white shadow-md sm:rounded-lg p-4 mx-6 min-h-0">
@@ -126,9 +135,11 @@ const DriverAssignerManagement = () => {
                 <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
                   License Plate
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
-                  Actions
-                </th>
+                {hasRole("ROLE_ADMIN") && (
+                  <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">
+                    Actions
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -152,22 +163,24 @@ const DriverAssignerManagement = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
                       {car ? car.licensePlate : "N/A"}
                     </td>
+                    {hasRole("ROLE_ADMIN") && (
                     <td className="px-6 py-4 whitespace-nowrap text-base font-medium flex space-x-3">
-                      <Link
-                        to={`/dashboard/driver-assigner/${order.assignedOrderId}/edit`}
-                        className="flex items-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md shadow"
-                      >
-                        <FaEdit className="mr-2" />
-                        Edit
-                      </Link>
-                      <Button
-                        className="flex items-center bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md shadow"
-                        onClick={() => handleDelete(order.assignedOrderId)}
-                      >
-                        <FaTrash className="mr-2" />
-                        Delete
-                      </Button>
+                        <Link
+                          to={`/dashboard/driver-assigner/${order.assignedOrderId}/edit`}
+                          className="flex items-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md shadow"
+                        >
+                          <FaEdit className="mr-2" />
+                          Edit
+                        </Link>
+                        <Button
+                          className="flex items-center bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md shadow"
+                          onClick={() => handleDelete(order.assignedOrderId)}
+                        >
+                          <FaTrash className="mr-2" />
+                          Delete
+                        </Button>
                     </td>
+                    )}
                   </tr>
                 );
               })}

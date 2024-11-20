@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import useDrivers from "@/hooks/useDrivers";
 import useRole from "@/hooks/UseRole";
+import { getUserRole } from "@/utils/getRole";
 import { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link } from "react-router-dom";
@@ -13,6 +14,12 @@ const DriverManagement = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const { getDrivers, deleteDriver, pagination } = useDrivers();
   const { removeRole } = useRole();
+
+  const hasRole = (requiredRole) => {
+    const roles = getUserRole();
+    if (!roles) return false;
+    return roles.includes(requiredRole);
+  };
 
   const fetchDrivers = async () => {
     try {
@@ -90,11 +97,13 @@ const DriverManagement = () => {
     <div className="h-screen flex flex-col bg-gray-100">
       <div className="mb-6 flex justify-between items-center pt-20 px-6">
         <h2 className="text-3xl font-bold text-indigo-700">Driver Management</h2>
+        {hasRole("ROLE_ADMIN") && (
         <Link to="/dashboard/drivers/new">
           <Button className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded shadow">
             Add New Driver
           </Button>
         </Link>
+        )}
       </div>
 
       <div className="flex-grow overflow-y-auto bg-white shadow-md sm:rounded-lg p-4 mx-6 min-h-0">
@@ -105,7 +114,9 @@ const DriverManagement = () => {
               <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">License Number</th>
               <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">State</th>
               <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">License Expiration</th>
+              {hasRole("ROLE_ADMIN") && (
               <th className="px-6 py-3 text-left text-sm font-bold uppercase tracking-wider">Actions</th>
+              )}
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -118,6 +129,7 @@ const DriverManagement = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-base text-gray-800">
                     {new Date(driver.driverLicenseExpirationDate).toLocaleDateString()}
                   </td>
+                  {hasRole("ROLE_ADMIN") && (
                   <td className="px-6 py-4 whitespace-nowrap text-base font-medium flex space-x-3">
                     <Link to={`/dashboard/drivers/${driver.driverId}/edit`} className="flex items-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md shadow">
                       <FaEdit className="mr-2" /> Edit
@@ -128,8 +140,7 @@ const DriverManagement = () => {
                     >
                       <FaTrash className="mr-2" /> Delete
                     </Button>
-
-                  </td>
+                  </td>)}
                 </tr>
               ))
             ) : (
