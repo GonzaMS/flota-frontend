@@ -12,7 +12,8 @@ const DriverManagement = () => {
   const [driversData, setDriversData] = useState({ items: [] });
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
-  const { getDrivers, deleteDriver, pagination } = useDrivers();
+  const [driverNameFilter, setDriverNameFilter] = useState("");
+  const { getDrivers, deleteDriver, getDriversByName, pagination } = useDrivers();
   const { removeRole } = useRole();
 
   const hasRole = (requiredRole) => {
@@ -22,12 +23,34 @@ const DriverManagement = () => {
   };
 
   const fetchDrivers = async () => {
+    setLoading(true);
+  
+    const showToastMessage = (message) => {
+      setDriversData({ items: [] }); 
+      toast.info(message); 
+    };
+  
+    const noDriversMessage = driverNameFilter
+      ? `No drivers found with the name "${driverNameFilter}".`
+      : `No drivers found.`;
+  
     try {
-      const res = await getDrivers(currentPage, pagination.pageSize);
-      setDriversData(res); 
+      const res = driverNameFilter
+        ? await getDriversByName(driverNameFilter, currentPage, pagination.pageSize)
+        : await getDrivers(currentPage, pagination.pageSize);
+  
+      if (res && res.items && res.items.length > 0) {
+        setDriversData(res);
+      } else {
+        showToastMessage(noDriversMessage); 
+      }
     } catch (error) {
-      console.error("Error fetching drivers:", error);
-      toast.error("Failed to load drivers.");
+      if (error.response?.status === 404) {
+        showToastMessage(noDriversMessage);
+      } else {
+        console.error("Error fetching drivers:", error);
+        toast.error("Failed to load drivers."); 
+      }
     } finally {
       setLoading(false);
     }
@@ -56,16 +79,10 @@ const DriverManagement = () => {
       { autoClose: false, closeButton: false }
     );
   };
-  
-  
 
   const confirmDelete = async (driverId, userId) => {
     try {
-      await removeRole({
-        userId: userId, 
-        roleName: "ROLE_DRIVER",
-      });
-  
+      await removeRole({ userId: userId, roleName: "ROLE_DRIVER" });
       await deleteDriver(driverId); 
       fetchDrivers();  
       toast.dismiss();
@@ -75,7 +92,6 @@ const DriverManagement = () => {
       toast.error("Error deleting driver.");
     }
   };
-  
 
   const cancelDelete = () => {
     toast.dismiss();
@@ -83,6 +99,12 @@ const DriverManagement = () => {
 
   const handlePageClick = (event) => {
     setCurrentPage(event.selected);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      fetchDrivers();
+    }
   };
 
   if (loading) {
@@ -104,6 +126,18 @@ const DriverManagement = () => {
           </Button>
         </Link>
         )}
+      </div>
+
+      {/* Filtro de búsqueda por nombre */}
+      <div className="mb-4 px-6">
+        <input
+          type="text"
+          value={driverNameFilter}
+          onChange={(e) => setDriverNameFilter(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Search by Name"
+          className="px-4 py-2 border border-gray-400 rounded-md w-48"
+        />
       </div>
 
       <div className="flex-grow overflow-y-auto bg-white shadow-md sm:rounded-lg p-4 mx-6 min-h-0">
