@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import useUser from "@/hooks/useUser";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Login = () => {
   const { getLogin, isLoading } = useUser();
@@ -86,7 +86,7 @@ const Login = () => {
 
             {/* Forgot password */}
             <div className="text-right text-blue-700 hover:text-blue-500">
-              <a href="/forgot_password">Forgot password?</a>
+              <Link to="/forgot-password">Forgot password?</Link>
             </div>
             <Button className="w-full" type="submit" disabled={isLoading}>
               {isLoading ? "Loading..." : "Login"}

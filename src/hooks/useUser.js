@@ -37,8 +37,18 @@ const useUser = () => {
     );
   };
 
-  const forgotPassword = async (params) => {
-    return handleRequest(() => api.post(`${USER_URL}forgot_password`, params));
+  const forgotPassword = async (email) => {
+    return handleRequest(() =>
+      api.post(`${USER_URL}forgot-password`, { email })
+    );
+  };
+
+  const resetPassword = async (token, newPassword) => {
+    return handleRequest(() =>
+      api.post(`${USER_URL}reset-password/${token}`, null, {
+        params: { newPassword },
+      })
+    );
   };
 
   return {
@@ -49,6 +59,7 @@ const useUser = () => {
     getLogin,
     activateAccount,
     forgotPassword,
+    resetPassword,
   };
 };
 

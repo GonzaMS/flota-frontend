@@ -3,62 +3,67 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import useUser from "@/hooks/useUser";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const ForgotPassword = () => {
-  const [email, setEmail] = useState("");
   const { forgotPassword, isLoading } = useUser();
-  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
 
-  const handleSubmmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const forgotPasswordParams = {
-      email: email,
-    };
+
+    if (!email) {
+      toast.error("Please enter your email.");
+      return;
+    }
 
     try {
-      const res = await forgotPassword(forgotPasswordParams);
-      if (res) {
-        toast.success(`Mail for change password sended to ${email}`);
-        navigate("/");
+      const res = await forgotPassword(email);
+
+      if (
+        res["forgot-password"] &&
+        res["forgot-password"].includes("Password reset email sent")
+      ) {
+        toast.success("Password reset email sent.");
+        setEmail("");
+      } else {
+        toast.error(res.error || "Failed to send reset email.");
       }
     } catch (err) {
-      toast.error("Error sending email");
-      console.log(err);
+      toast.error("An unexpected error occurred.");
     }
   };
 
   return (
-    <>
-      <div className="flex items-center justify-center min-h-scree">
-        <div className="bg-white shadow-lg rounded-lg p-8 mx-auto max-w-sm w-full">
-          <h1 className="text-indigo-600 font-black text-3xl text-center mb-6">
-            Forgot your password?
+    <div className="flex items-center justify-center shadow-lg ">
+      <div className="bg-white shadow-lg rounded-lg p-8 mx-auto max-w-sm w-full">
+        <div>
+          <h1 className="text-indigo-600 font-black text-3xl text-center">
+            Forgot Password
           </h1>
-          <form onSubmit={handleSubmmit} className="space-y-6">
-            <div className="space-y-4">
-              <div className="space-y-2 text-start">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  placeholder="jondoe@example.com"
-                  required
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-              <div className="text-center">
-                <Button className="w-full" type="submit" disabled={isLoading}>
-                  {isLoading ? "Loading..." : "Send email"}
-                </Button>
-              </div>
-            </div>
-          </form>
         </div>
+
+        <form onSubmit={handleSubmit} className="mt-6">
+          <div className="space-y-4">
+            <div className="space-y-2 text-start">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                placeholder="jondoe@example.com"
+                required
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+
+            <Button className="w-full" type="submit" disabled={isLoading}>
+              {isLoading ? "Sending..." : "Send Reset Email"}
+            </Button>
+          </div>
+        </form>
       </div>
-    </>
+    </div>
   );
 };
 

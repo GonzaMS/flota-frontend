@@ -51,7 +51,7 @@ const Register = () => {
         toast.success(
           "Account created successfully. Please check your email to confirm your account."
         );
-        //navigate("/");
+        navigate("/");
       } else {
         setLocalError(res);
       }
