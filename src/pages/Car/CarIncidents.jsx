@@ -3,17 +3,10 @@ import Loader from "@/components/common/Loader";
 import Pagination from "@/components/common/Pagination";
 import Table from "@/components/common/Table";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import useCarIncidents from "@/hooks/useCarIncidents";
 import useCars from "@/hooks/useCars";
 import { getUserRole } from "@/utils/getRole";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { FaPlus, FaSearch } from "react-icons/fa";
@@ -21,13 +14,15 @@ import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const CarIncidents = () => {
-  const [incidentsData, setIncidentsData] = useState([]);
-  const [carNames, setCarNames] = useState({});
-  const [carOptions, setCarOptions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [selectedCar, setSelectedCar] = useState("");
-  const [dateRange, setDateRange] = useState([null, null]);
+  const {
+    getIncidents,
+    getIncidentsByCarId,
+    getIncidentsByDateRange,
+    deleteIncident,
+    isLoading,
+    pagination,
+  } = useCarIncidents();
+  const { getCars } = useCars();
 
   const hasRole = (requiredRole) => {
     const roles = getUserRole();
@@ -35,111 +30,126 @@ const CarIncidents = () => {
     return roles.includes(requiredRole);
   };
 
-  const {
-    getIncidents,
-    getIncidentsByCarId,
-    getIncidentsByDateRange,
-    deleteIncident,
-    pagination,
-  } = useCarIncidents();
-  const { getCars } = useCars();
+  const [carNames, setCarNames] = useState({});
+  const [cars, setCars] = useState([]);
+  const [incidentsData, setIncidentsData] = useState([]);
+  const [selectedCarId, setSelectedCarId] = useState("");
+  const [dateRange, setDateRange] = useState([null, null]);
+  const [currentPage, setCurrentPage] = useState(0);
 
-  const fetchCarNames = async () => {
-    try {
-      const response = await getCars();
-      const carMap = {};
-      const options = response.items.map((car) => ({
-        id: car.id,
-        label: `${car.brand} ${car.model} - ${car.licensePlate}`,
-      }));
-      response.items.forEach(
-        (car) =>
-          (carMap[car.id] = `${car.brand} ${car.model} - ${car.licensePlate}`)
-      );
-      setCarNames(carMap);
-      setCarOptions(options);
-    } catch (error) {
-      console.error("Error fetching car names:", error);
-      toast.error("Failed to load car names.");
-    }
+  useEffect(() => {
+    fetchCarsData();
+    fetchIncidents(currentPage);
+  }, [currentPage]);
+
+  const fetchCarsData = async () => {
+    const carsData = await getCars();
+    setCars(carsData.items);
+
+    const carNameMap = carsData.items.reduce((acc, car) => {
+      acc[car.id] = `${car.brand} ${car.model} - ${car.licensePlate}`;
+      return acc;
+    }, {});
+    setCarNames(carNameMap);
   };
 
-  const fetchIncidents = useCallback(async () => {
-    setLoading(true);
-
-    const showToastMessage = (message) => {
-      setIncidentsData([]);
-      toast.info(message);
-    };
+  const fetchIncidents = async (page) => {
+    setIncidentsData([]); // Reiniciar busquedas
+    const hasDateRange = dateRange[0] && dateRange[1];
+    const formattedStartDate = hasDateRange
+      ? dateRange[0].toISOString().split("T")[0]
+      : null;
+    const formattedEndDate = hasDateRange
+      ? dateRange[1].toISOString().split("T")[0]
+      : null;
 
     try {
-      let res;
-      const [startDate, endDate] = dateRange;
-      const hasDateRange = startDate && endDate;
-
-      if (selectedCar && hasDateRange) {
-        res = await getIncidentsByCarId(
-          selectedCar,
-          currentPage,
-          pagination.pageSize
+      let response;
+      if (selectedCarId && hasDateRange) {
+        response = await getIncidentsByCarId(
+          selectedCarId,
+          formattedStartDate,
+          formattedEndDate,
+          page
         );
+      } else if (selectedCarId) {
+        response = await getIncidentsByCarId(selectedCarId, page);
       } else if (hasDateRange) {
-        res = await getIncidentsByDateRange(
-          {
-            startDate: startDate.toISOString().split("T")[0],
-            endDate: endDate.toISOString().split("T")[0],
-          },
-          currentPage,
-          pagination.pageSize
+        response = await getIncidentsByDateRange(
+          formattedStartDate,
+          formattedEndDate,
+          page
         );
       } else {
-        res = await getIncidents(currentPage, pagination.pageSize);
+        response = await getIncidents(page);
       }
 
-      if (res && res.items && res.items.length > 0) {
-        setIncidentsData(res.items);
+      if (response && response.items && response.items.length > 0) {
+        setIncidentsData(response.items);
       } else {
-        showToastMessage("No incidents found.");
+        const filterDescription = selectedCarId
+          ? `${
+              carNames[selectedCarId] || "selected car"
+            } in the selected date range`
+          : "the selected date range";
+        toast.warn(`No incidents found for ${filterDescription}.`);
+        setIncidentsData([]); // Asegúrate de vaciar los datos si no hay resultados
       }
     } catch (error) {
       console.error("Error fetching incidents:", error);
       toast.error("Failed to load incidents.");
-    } finally {
-      setLoading(false);
+      setIncidentsData([]); // Maneja errores reiniciando los datos
     }
-  }, [
-    selectedCar,
-    dateRange,
-    currentPage,
-    pagination.pageSize,
-    getIncidents,
-    getIncidentsByDateRange,
-    getIncidentsByCarId,
-  ]);
+  };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      await fetchCarNames();
-      await fetchIncidents();
-    };
+  const cancelDelete = () => {
+    toast.dismiss();
+  };
 
-    fetchData();
-  }, [selectedCar, dateRange, currentPage]);
-
-  const handleDelete = async (id) => {
+  const confirmDelete = async (incidentId) => {
     try {
-      await deleteIncident(id);
-      toast.success("Incident deleted successfully");
-      fetchIncidents();
+      await deleteIncident(incidentId);
+      fetchIncidents(currentPage);
+      toast.success("Incident deleted successfully.");
     } catch (error) {
       console.error("Error deleting incident:", error);
       toast.error("Failed to delete incident.");
     }
   };
 
-  const incidentHeaders = ["Car", "Date", "Description", "Type"];
+  const handleFilterSubmit = () => {
+    setCurrentPage(0);
+    fetchIncidents(0);
+  };
 
-  return loading ? (
+  const handlePageClick = (event) => {
+    setCurrentPage(event.selected);
+    fetchIncidents(event.selected);
+  };
+
+  const handleDelete = (incidentId) => {
+    toast.info(
+      <>
+        <p>Are you sure you want to delete this incident record?</p>
+        <div className="flex justify-end">
+          <Button
+            className="mr-2 bg-red-500 text-white"
+            onClick={() => confirmDelete(incidentId)}
+          >
+            Delete
+          </Button>
+          <Button className="bg-gray-500 text-white" onClick={cancelDelete}>
+            Cancel
+          </Button>
+        </div>
+      </>,
+      { autoClose: false, closeButton: false }
+    );
+  };
+
+  const incidentHeaders = ["Car Name", "Date", "Description", "Type"];
+
+  return isLoading ? (
     <Loader />
   ) : (
     <div className="min-h-screen p-6 bg-gray-100">
@@ -155,25 +165,20 @@ const CarIncidents = () => {
         )}
       </div>
 
-      <div className="mb-6 flex space-x-4 items-center">
-        {/* Car Filter */}
-        <Select
-          onValueChange={(value) => setSelectedCar(value)}
-          value={selectedCar}
+      <div className="mb-4 flex space-x-4">
+        <select
+          value={selectedCarId}
+          onChange={(e) => setSelectedCarId(e.target.value)}
+          className="p-2 border border-gray-300 rounded"
         >
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="Filter by Car" />
-          </SelectTrigger>
-          <SelectContent>
-            {carOptions.map((car) => (
-              <SelectItem key={car.id} value={car.id}>
-                {car.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          <option value="">Select Car</option>
+          {cars.map((car) => (
+            <option key={car.id} value={car.id}>
+              {car.brand} {car.model} - {car.licensePlate}
+            </option>
+          ))}
+        </select>
 
-        {/* Date Range Filter */}
         <DatePicker
           selectsRange
           startDate={dateRange[0]}
@@ -185,7 +190,7 @@ const CarIncidents = () => {
         />
 
         <Button
-          onClick={fetchIncidents}
+          onClick={handleFilterSubmit}
           className="bg-indigo-600 text-white px-4 flex items-center space-x-2"
         >
           <FaSearch className="inline" />
@@ -193,30 +198,30 @@ const CarIncidents = () => {
         </Button>
       </div>
 
-      <div className="border rounded-lg shadow-sm">
-        <div className="overflow-y-auto max-h-[600px]">
-          <table className="min-w-full bg-white">
+      {incidentsData.length === 0 ? (
+        <p className="text-center text-lg font-semibold">No incidents found.</p>
+      ) : (
+        <div className="border rounded-lg shadow-sm">
+          <div className="overflow-y-auto max-h-[600px]">
             <Table
               headers={incidentHeaders}
               data={incidentsData}
               RowComponent={IncidentTableRow}
-              rowProps={{
-                carNames,
-                onDelete: handleDelete,
-                hasRole,
-              }}
+              rowProps={{ carNames, onDelete: handleDelete, hasRole }}
             />
-          </table>
+          </div>
         </div>
-      </div>
+      )}
 
-      <div className="flex justify-center mt-6">
-        <Pagination
-          pageCount={pagination.totalPages}
-          onPageChange={(e) => setCurrentPage(e.selected)}
-          forcePage={currentPage}
-        />
-      </div>
+      {incidentsData.length > 0 && (
+        <div className="flex justify-center mt-8">
+          <Pagination
+            pageCount={pagination.totalPages}
+            onPageChange={handlePageClick}
+            forcePage={currentPage}
+          />
+        </div>
+      )}
     </div>
   );
 };

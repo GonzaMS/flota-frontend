@@ -1,4 +1,13 @@
-import { createContext, useContext, useState } from "react";
+import useValidateUser from "@/hooks/useValidateUser";
+import {
+  clearAuthData,
+  getUserFromStorage,
+  saveUserToStorage,
+  shouldValidateToken,
+  updateLastValidation,
+} from "@/utils/isValidUserToken";
+import { createContext, useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
 
@@ -7,24 +16,39 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem("user");
-    return storedUser ? JSON.parse(storedUser) : null;
-  });
+  const [user, setUser] = useState(() => getUserFromStorage());
+  const { validateToken } = useValidateUser();
+  const navigate = useNavigate();
+
+  const checkToken = async () => {
+    if (shouldValidateToken() && user) {
+      const isValid = await validateToken();
+      if (!isValid) {
+        logout();
+        navigate("/");
+      } else {
+        updateLastValidation();
+      }
+    }
+  };
+
+  useEffect(() => {
+    checkToken();
+  }, [user, validateToken, navigate]);
 
   const login = (userData) => {
     setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
+    saveUserToStorage(userData);
+    updateLastValidation();
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("user");
+    clearAuthData();
+    navigate("/");
   };
 
-  const isAuthenticated = () => {
-    return !!user;
-  };
+  const isAuthenticated = () => !!user;
 
   return (
     <AuthContext.Provider value={{ user, login, logout, isAuthenticated }}>
